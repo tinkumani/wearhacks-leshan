@@ -3,6 +3,8 @@
 This repository is a clone of the Leshan source code with a few modifications.
 The modifications allow Leshan to be used as a LWM2M client with Nokia's [Motive® Connected Device Platform (CDP)](https://networks.nokia.com/solutions/connected-device-platform).
 
+All Source code is property of Eclipse. Thank you to Ramesh Pattabhiraman for the CDP workaround.
+
 ## BEFORE YOU START
 [What is OMA LWM2M?](http://www.openmobilealliance.org/wp/overviews/lightweightm2m_overview.html)  
 [Introduction to LWM2M](http://fr.slideshare.net/zdshelby/oma-lightweightm2-mtutorial)  
@@ -14,6 +16,8 @@ The modifications allow Leshan to be used as a LWM2M client with Nokia's [Motive
 
 ## CONNECTING TO CDP - THE BASICS
 [Video Tutorial](https://google.ca) 
+
+Before anything, we need the code!
 
 - Start by downloading the ZIP contents of this repository, and extracting them to a folder somewhere on your computer.  
 - Open a terminal and navigate into the folder.   
@@ -41,5 +45,33 @@ Your client should now proceed to connecting to CDP. To verify,
 ## INTERACTING WITH THE OBJECTS ON YOUR CLIENT
 [Video Tutorial](https://google.ca)  
 
-CDP requests and writes information by queuing and executing "Operations" on your device from the device page. These operations are based on "Actions". Each action is essentially just a named LWM2M request. Before we can do this, we need to create actions for the new device we created. The client demo code contains a few test objects already. Remember that objects in LWM2M protocol have pre-defined resources and paths. Read through the links on LWM2M near the top of the page if you want to know more about how these objects and paths work. Our demo code has three objects: A MyDevice object, a MyLocation object and a RandomTemperatureSensor object. Let’s create an action to request the device manufacturer from the MyDevice object.  
+CDP requests and writes information by queuing and executing "Operations" on your device from the device page. These operations are based on "Actions". Each action is essentially just a named LWM2M request. Let's create a few actions.
+
+- Go to the Actions tab on the left and click on Add Action.
+- Name your action 
+
+Now here's the important bit. We have to select a primitive for this action. Primitives specify the exact request that the server sends out. Lets start with a basic LWM2M read request. 
+
+- From the primitive dropdown, select "LWM2M.read".
+- You'll see a Path textbox appear.
+
+Lets start by accessing the MyDevice Manufacturer information, which is accessed with the path /3/0/0. 
+
+- Enter /3/0/0 into the Path textbox.
+- Click save and navigate back to the device's page.
+- Click on the Operations tab and find the action you created.
+- Click the icon on the right to queue the action
+
+The server will now carry out the specified action. You can go back to the Job Details tab to view the results of the operation. Click on the operation to view details on the response.
+
+## CREATING YOUR OWN OBJECTS 
+[Video Tutorial](https://google.ca)
+
+This topic is a bit too complicated to cover on the readme. Watch the video for a quick walkthrough on how to add your own object to the client and how to modify the responses that the server recieves when querying the client. 
+
+## USING THE CDP API 
+
+One of the advantages of using CDP as a management solution is its robust set of API calls. There is API documentation included in this repository. You're just a few HTTP requests away from creating user-facing applications to graph and display information.
+
+
 
