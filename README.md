@@ -14,6 +14,16 @@ All Source code is property of Eclipse. Thank you to Ramesh Pattabhiraman for th
 [Eclipse Java IDE](https://eclipse.org/downloads/packages/eclipse-ide-java-developers/neon2) (Or your preferred editor/IDE)    
 [Apache Maven build manager](https://maven.apache.org/) (Can be installed within Eclipse or via the terminal if you're using a different IDE)    
 
+### CODING WITH ECLIPSE
+
+You need to add the M2_REPO to your java classpath variables.
+
+- run `mvn -Declipse.workspace=<path-to-eclipse-workspace> eclipse:add-maven-repo` OR add it manually in eclipse.
+
+Eclipsify the project files 
+
+- Navigate to the project folder and run `mvn eclipse:ecpise`
+
 ## CONNECTING TO CDP - THE BASICS
 [Video Tutorial](https://google.ca) 
 
