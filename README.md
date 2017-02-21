@@ -35,7 +35,7 @@ Before anything, we need the code!
 
 Before we try to connect our client to CDP we have to log in and let CDP know that we will be connecting a LWM2M device to it under a specific name.  
 
-- To do this, log into your CDP instance by going [here](http://52.9.139.199:8180/ui) and entering your credentials.  
+- To do this, log into your CDP instance by going to your CDP instance and entering your credentials.  
 - Next open the Devices tab on the left and click Add a Device.   
 - Add the device name in the Device ID textbox. (The placeholder text is "Serial Number | MAC address")
 - In the manufacturer dropdown select "Generic"
@@ -43,9 +43,10 @@ Before we try to connect our client to CDP we have to log in and let CDP know th
 
 You will now be able to connect a client to CDP under the device name you specified. Next,
 
-- Run the demo client by running the command `java -Dkludge=true -jar leshan-client-demo/target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar -u 59.2.139.199:5684 -n <Device Name>` 
+- Run the demo client by running the command `java -Dkludge=true -jar leshan-client-demo/target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar -u <CDP IP Address>:5684 -n <Device Name>` 
 
-Its worth noting that once you've built the files with maven you can launch this jar file as a standalone executable from any device that supports java using that command.   
+Its worth noting that once you've built the files with maven you can launch this jar file as a standalone executable from any device that supports java using that command.  
+
 Your client should now proceed to connecting to CDP. To verify,
 
 - In the Devices tab on the left click on View Device.
@@ -53,7 +54,7 @@ Your client should now proceed to connecting to CDP. To verify,
 - Click on your device name
 - Click Additional Info and verify that the "updated" time matches the time you connected your client to CDP. 
 
-## INTERACTING WITH THE OBJECTS ON YOUR CLIENT
+## READING THE OBJECTS ON YOUR CLIENT
 [Video Tutorial](https://google.ca) (Coming Soon!)  
 
 CDP requests and writes information by queuing and executing "Operations" on your device from the device page. These operations are based on "Actions". Each action is essentially just a named LWM2M request. Let's create a few actions.
@@ -81,6 +82,11 @@ The server will now carry out the specified action. You can go back to the Job D
 This topic is a bit too complicated to cover on the readme. Watch the video for a quick walkthrough on how to add your own object to the client and how to modify the responses that the server recieves when querying the client. 
 
 After watching the video you'll understand a lot more about how the leshan client uses objects and you'll be able to see how you might leverage the Leshan client and CDP to create and manage interesting devices.
+
+## WRITING AND EXECUTING COMMANDS ON YOUR CLIENT
+[Video Tutorial](https://google.ca) (Coming Soon!)
+
+Again, this would be a little too mutch to try to squeeze into a readme. Click the link above to watch a quick video on how you can use CDP to write information and execute commands on your client. 
 
 ## USING THE CDP API
 [Video Tutorial](https://google.ca) (Coming Soon!)
