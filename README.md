@@ -54,7 +54,9 @@ Your client should now proceed to connecting to CDP. To verify,
 - Click on your device name
 - Click Additional Info and verify that the "updated" time matches the time you connected your client to CDP. 
 
-## READING THE OBJECTS ON YOUR CLIENT
+## INTERACTING WITH THE OBJECTS ON YOUR CLIENT
+
+### READING OBJECTS ON YOUR CLIENT
 [Video Tutorial](https://google.ca) (Coming Soon!)  
 
 CDP requests and writes information by queuing and executing "Operations" on your device from the device page. These operations are based on "Actions". Each action is essentially just a named LWM2M request. Let's create a few actions.
@@ -76,14 +78,14 @@ Lets start by accessing the MyDevice Manufacturer information, which is accessed
 
 The server will now carry out the specified action. You can go back to the Job Details tab to view the results of the operation. Click on the operation to view details on the response.
 
-## CREATING YOUR OWN OBJECTS 
+### CREATING YOUR OWN OBJECTS 
 [Video Tutorial](https://google.ca) (Coming Soon!)
 
 This topic is a bit too complicated to cover on the readme. Watch the video for a quick walkthrough on how to add your own object to the client and how to modify the responses that the server recieves when querying the client. 
 
 After watching the video you'll understand a lot more about how the leshan client uses objects and you'll be able to see how you might leverage the Leshan client and CDP to create and manage interesting devices.
 
-## WRITING AND EXECUTING COMMANDS ON YOUR CLIENT
+### WRITING AND EXECUTING COMMANDS ON YOUR CLIENT
 [Video Tutorial](https://google.ca) (Coming Soon!)
 
 Again, this would be a little too mutch to try to squeeze into a readme. Click the link above to watch a quick video on how you can use CDP to write information and execute commands on your client. 
