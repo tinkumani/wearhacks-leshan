@@ -25,7 +25,7 @@ Eclipsify the project files
 - Navigate to the project folder and run `mvn eclipse:ecpise`
 
 ## CONNECTING TO CDP - THE BASICS
-[Video Tutorial](https://vimeo.com/204568989) - Contact Lucas for the password.
+[Video Tutorial](https://vimeo.com/204568989)
 
 Before anything, we need the code!
 
@@ -57,7 +57,7 @@ Your client should now proceed to connecting to CDP. To verify,
 ## INTERACTING WITH THE OBJECTS ON YOUR CLIENT
 
 ### READING OBJECTS ON YOUR CLIENT
-[Video Tutorial](https://google.ca) (Coming Soon!)  
+[Video Tutorial](https://vimeo.com/205581549)  
 
 CDP requests and writes information by queuing and executing "Operations" on your device from the device page. These operations are based on "Actions". Each action is essentially just a named LWM2M request. Let's create a few actions.
 
