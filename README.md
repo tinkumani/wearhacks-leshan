@@ -68,12 +68,12 @@ Do all of your coding and compiling on a laptop and then SCP the .jar file to yo
 
 To SCP the .jar file to the Pi
 
-- Make sure SSH and SCP is enabled on your rasberry pi
-- Open a terminal on your laptop and type in `scp <path to .jar file> <pi user>@<raspberry pi ip>:<location you want the .jar file>`
+- Make sure SSH and SCP is enabled on your Rasberry Pi
+- Open a terminal on your laptop and run `scp <path to .jar file> <Pi user>@<Raspberry Pi ip>:<location you want the .jar file>`
 - Enter the user password on the Pi. (By default the user is pi and the password is raspberry)
 - Run the .jar file on the Pi as you normally would
 
-A quick way to SCP files to your Pi is to connect your Pi to your laptop with an ethernet cable and replace the `<raspberry pi ip>` field above with `raspberrypi.local`.
+A quick way to SCP files to your Pi is to connect your Pi to your laptop with an ethernet cable and replace the `<Raspberry Pi ip>` field above with `raspberrypi.local`.
 
 ## INTERACTING WITH THE OBJECTS ON YOUR CLIENT
 
