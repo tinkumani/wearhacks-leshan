@@ -64,13 +64,14 @@ Simply follow all of the steps in these tutorials on the Raspberry Pi. Do all of
 
 #### OPTION 2 
 
-Do all of your coding and compiling on a laptop and then SCP the .jar file to your Raspberry Pi and run it. This is the best option if your code doesn't need any special inputs on the Pi and can be directly ported between generic unix machines. You'll have the advantage of doing all of your coding and testing on a faster machine. 
+Do all of your coding and compiling on a laptop and then SCP the .jar file to your Raspberry Pi and run it there. This is the best option if your code doesn't need any special inputs on the Pi and can be directly ported between generic Unix machines. You'll have the advantage of doing all of your coding and testing on a faster machine. 
 
 To SCP the .jar file to the Pi
 
 - Make sure SSH and SCP is enabled on your rasberry pi
 - Open a terminal on your laptop and type in `scp <path to .jar file> <pi user>@<raspberry pi ip>:<location you want the .jar file>`
 - Enter the user password on the Pi. (By default the user is pi and the password is raspberry)
+- Run the .jar file on the Pi as you normally would
 
 A quick way to SCP files to your Pi is to connect your Pi to your laptop with an ethernet cable and replace the `<raspberry pi ip>` field above with `raspberrypi.local`.
 
