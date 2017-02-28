@@ -102,7 +102,7 @@ Lets start by accessing the MyDevice Manufacturer information, which is accessed
 The server will now carry out the specified action. You can go back to the Job Details tab to view the results of the operation. Click on the operation to view details on the response.
 
 ### CREATING YOUR OWN OBJECTS 
-[Video Tutorial](https://google.ca) (Coming Soon!)
+[Video Tutorial](https://vimeo.com/206150211)
 
 This topic is a bit too complicated to cover on the readme. Watch the video for a quick walkthrough on how to add your own object to the client and how to modify the responses that the server recieves when querying the client. 
 
