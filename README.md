@@ -108,15 +108,11 @@ This topic is a bit too complicated to cover on the readme. Watch the video for 
 
 After watching the video you'll understand a lot more about how the leshan client uses objects and you'll be able to see how you might leverage the Leshan client and CDP to create and manage interesting devices.
 
-### WRITING AND EXECUTING COMMANDS ON YOUR CLIENT
-[Video Tutorial](https://google.ca) (Coming Soon!)
-
-Again, this would be a little too mutch to try to squeeze into a readme. Click the link above to watch a quick video on how you can use CDP to write information and execute commands on your client. 
-
 ## USING THE CDP API
-[Video Tutorial](https://google.ca) (Coming Soon!)
 
-One of the advantages of using CDP as a management solution is its robust set of API calls. There is API documentation included in this repository. You're just a few HTTP requests away from creating user-facing applications to graph and display information.
+One of the advantages of using CDP as a management solution is its robust set of API calls. You're just a few HTTP requests away from creating user-facing applications to graph and display information.
+
+Have a read through the Swagger UI page in this repository to learn more about the calls you can make to the CDP server.
 
 ## WHAT ARE THE POSSIBILITIES?
 [Video Project](https://google.ca) (Coming Soon!)
