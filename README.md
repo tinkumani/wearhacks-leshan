@@ -114,6 +114,8 @@ One of the advantages of using CDP as a management solution is its robust set of
 
 Have a read through the Swagger UI page in this repository to learn more about the calls you can make to the CDP server.
 
+You can also use [Swagger Codegen](http://swagger.io/swagger-codegen/) to create code stubs in any language you can imagine. 
+
 ## WHAT ARE THE POSSIBILITIES?
 [Video Project](https://google.ca) (Coming Soon!)
 
