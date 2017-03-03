@@ -117,7 +117,7 @@ Have a read through the Swagger UI page in this repository to learn more about t
 You can also use [Swagger Codegen](http://swagger.io/swagger-codegen/) to create code stubs in any language you can imagine. 
 
 ## WHAT ARE THE POSSIBILITIES?
-Check my [IoT light control](https://github.com/lucasgauk/iot-light-control) for a little demo project. It's the hello world of IoT projects and it applies everything we've learned in these tutorials. Take it and run with it!
+Check my [IoT light control](https://github.com/lucasgauk/iot-light-control) repository for a little demo project. It applies everything we've learned in these tutorials. Have fun!
 
 
 
