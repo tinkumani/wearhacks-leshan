@@ -119,6 +119,8 @@ You can also use [Swagger Codegen](http://swagger.io/swagger-codegen/) to create
 ## WHAT ARE THE POSSIBILITIES?
 Check my [IoT light control](https://github.com/lucasgauk/iot-light-control) repository for a little demo project. It applies everything we've learned in these tutorials. Have fun!
 
+Lucas Gauk 2017
+
 
 
 
