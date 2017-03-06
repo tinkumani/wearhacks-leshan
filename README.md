@@ -109,14 +109,17 @@ This topic is a bit too complicated to cover on the readme. Watch the video for 
 After watching the video you'll understand a lot more about how the leshan client uses objects and you'll be able to see how you might leverage the Leshan client and CDP to create and manage interesting devices.
 
 ## USING THE CDP API
+[Video Tutorial](https://google.ca)(Coming Soon!)
 
 One of the advantages of using CDP as a management solution is its robust set of API calls. You're just a few HTTP requests away from creating user-facing applications to graph and display information.
 
-Have a read through the Swagger UI page in this repository to learn more about the calls you can make to the CDP server.
+Have a read through the [Swagger UI](/Swagger\ UI.htm) page in this repository to learn more about the calls you can make to the CDP server.
 
 You can also use [Swagger Codegen](http://swagger.io/swagger-codegen/) to create code stubs in any language you can imagine. 
 
 ## WHAT ARE THE POSSIBILITIES?
+[Project Video](https://google.ca)(Coming Soon!)
+
 Check my [IoT light control](https://github.com/lucasgauk/iot-light-control) repository for a little demo project. It applies everything we've learned in these tutorials. Have fun!
 
 Lucas Gauk 2017
