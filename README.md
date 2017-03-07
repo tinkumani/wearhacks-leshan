@@ -109,7 +109,7 @@ This topic is a bit too complicated to cover on the readme. Watch the video for 
 After watching the video you'll understand a lot more about how the leshan client uses objects and you'll be able to see how you might leverage the Leshan client and CDP to create and manage interesting devices.
 
 ## USING THE CDP API
-[Video Tutorial](https://google.ca) (Coming Soon!)
+[Video Tutorial](https://vimeo.com/207349496)
 
 One of the advantages of using CDP as a management solution is its robust set of API calls. You're just a few HTTP requests away from creating user-facing applications to graph and display information.
 
