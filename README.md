@@ -3,6 +3,8 @@
 This repository is a clone of the Leshan source code with a few modifications.
 The modifications allow Leshan to be used as a LWM2M client with Nokia's [Motive® Connected Device Platform (CDP)](https://networks.nokia.com/solutions/connected-device-platform).
 
+(Your device doesnt support Java? Try [Wakaama](https://github.com/eclipse/wakaama), a C LWM2M library. The code structure and procedures are similar)
+
 All Source code is property of Eclipse. Thank you to Ramesh Pattabhiraman for the CDP workaround.
 
 ## BEFORE YOU START
