@@ -1,13 +1,12 @@
 package org.poseidon;
 
-/**
- * Hello world!
- *
- */
-public class App 
+import org.opencv.core.Core;
+
+public class App
 {
-    public static void main( String[] args )
+    public void startTracking()
     {
-        System.out.println( "Hello World!" );
+    	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
     }
 }
