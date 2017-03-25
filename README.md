@@ -45,7 +45,7 @@ Before we try to connect our client to CDP we have to log in and let CDP know th
 
 You will now be able to connect a client to CDP under the device name you specified. Next,
 
-- Run the demo client by running the command `java -Dkludge=true -jar leshan-client-demo/target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar -u <CDP IP Address>:5684 -n <Device Name>` 
+- Run the demo client by running the command `java -Dkludge=true -jar leshan-client-demo/target/leshan-client-demo-*-SNAPSHOT-jar-with-dependencies.jar -u <CDP IP Address>:5683 -n <Device Name>` 
 
 For the Waterloo Wearhacks hackathon the CDP instance will be hosted at waterloo.nokialabs.com.
 
