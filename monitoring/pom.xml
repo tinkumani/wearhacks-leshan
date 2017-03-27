@@ -2,16 +2,31 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.poseidon</groupId>
-    <artifactId>core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>poseidon</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
+   <groupId>org.poseidon</groupId>
   <artifactId>monitoring</artifactId>
-  
+   <version>1.0.0-SNAPSHOT</version>
   <dependencies>
   	<dependency>
   		<groupId>com.beust</groupId>
   		<artifactId>jcommander</artifactId>
   		<version>1.6</version>
   	</dependency>
+  	<dependency>
+  		<groupId>nu.pattern</groupId>
+  		<artifactId>opencv</artifactId>
+  	</dependency>
+
   </dependencies>
+  <dependencyManagement>
+  	<dependencies>
+  		<dependency>
+  			<groupId>nu.pattern</groupId>
+  			<artifactId>opencv</artifactId>
+  			<version>3.2.0-1.3</version>
+  		</dependency>
+  	</dependencies>
+  </dependencyManagement>
 </project>
