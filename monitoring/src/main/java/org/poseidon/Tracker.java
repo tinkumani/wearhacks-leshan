@@ -30,7 +30,14 @@ public class Tracker {
 	private JPanel panelCamera = new JPanel();
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
 	private JFrame frameThreshold;
-
+	//max number of objects to be detected in frame
+		private final int MAX_NUM_OBJECTS = 50;
+		
+		//minimum and maximum object area
+		private final int MIN_OBJECT_AREA = 40 * 40;
+       //Ignore the image border
+		private double MIN_X_BORDER=10;
+		private double MIN_Y_BORDER=10;
 	public void startTracking() throws Exception {
 
 		Mat image = new Mat();
@@ -58,6 +65,7 @@ public class Tracker {
 				if (capture.isOpened()) {
 					
 					while (true) {
+						int count=0;
 						capture.read(image);
 						
 						if (!image.empty()) {
@@ -86,6 +94,18 @@ public class Tracker {
 										//we only want the object with the largest area so we safe a reference area each
 										//iteration and compare it to the area in the next iteration.
 										if (area > MIN_OBJECT_AREA) {
+											Point centroid = new Point();
+											centroid.x = moment.get_m10() / moment.get_m00();
+											centroid.y = moment.get_m01() / moment.get_m00();
+											if(centroid.x>MIN_X_BORDER && centroid.x<temp.size().width-MIN_X_BORDER &&
+													centroid.y>MIN_Y_BORDER && centroid.y<temp.size().height-MIN_Y_BORDER	)
+											{
+												count++;
+											}
+											else//some is coming
+											{
+												
+											}
 
 										}
 									}
