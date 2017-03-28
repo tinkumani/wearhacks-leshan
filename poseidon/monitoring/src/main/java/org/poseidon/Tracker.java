@@ -38,6 +38,8 @@ public class Tracker {
        //Ignore the image border
 		private double MIN_X_BORDER=10;
 		private double MIN_Y_BORDER=10;
+
+		private SecurityCameraListener securityCameraListener;
 	public void startTracking() throws Exception {
 
 		Mat image = new Mat();
@@ -141,7 +143,7 @@ public class Tracker {
 	}
 
 	public void addSecurityCameraListener(SecurityCameraListener mySecurityCamera) {
-		// TODO Auto-generated method stub
+		this.securityCameraListener=securityCameraListener;
 		
 	}
 }
