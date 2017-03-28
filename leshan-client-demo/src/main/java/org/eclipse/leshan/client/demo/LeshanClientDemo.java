@@ -228,8 +228,7 @@ public class LeshanClientDemo {
         initializer.setInstancesForObject(OBJECT_ID_SECURITY_CAM, new MySecurityCamera());
 
         // Add objects to enabler list
-        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, LOCATION,
-                OBJECT_ID_TEMPERATURE_SENSOR);
+        List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, OBJECT_ID_SECURITY_CAM);
 
         // Create client
         LeshanClientBuilder builder = new LeshanClientBuilder(endpoint);

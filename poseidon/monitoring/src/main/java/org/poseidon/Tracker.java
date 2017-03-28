@@ -82,17 +82,14 @@ public class Tracker {
 							if (contours.size() > 0) {
 								int numObjects = contours.size();
 						
-								//if number of objects greater than MAX_NUM_OBJECTS we have a noisy filter
+								//large number of objects, we have a noisy filter
 								if (numObjects < MAX_NUM_OBJECTS) {
 						
 									for (int i=0; i< contours.size(); i++){
 										Moments moment = Imgproc.moments(contours.get(i));
 										double area = moment.get_m00();
 						
-										//if the area is less than 20 px by 20px then it is probably just noise
-										//if the area is the same as the 3/2 of the image size, probably just a bad filter
-										//we only want the object with the largest area so we safe a reference area each
-										//iteration and compare it to the area in the next iteration.
+										//small objects,just noise										
 										if (area > MIN_OBJECT_AREA) {
 											Point centroid = new Point();
 											centroid.x = moment.get_m10() / moment.get_m00();
@@ -141,5 +138,10 @@ public class Tracker {
 		Tracker tracker = new Tracker();
 		new JCommander(tracker, args);
 		tracker.startTracking();
+	}
+
+	public void addSecurityCameraListener(SecurityCameraListener mySecurityCamera) {
+		// TODO Auto-generated method stub
+		
 	}
 }
