@@ -21,12 +21,16 @@ import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
+import org.opencv.core.Mat;
 import org.poseidon.SecurityCameraListener;
 import org.poseidon.Tracker;
 
 public class MySecurityCamera extends BaseInstanceEnabler implements SecurityCameraListener{
+	 Tracker tracker=null;
+	private static int STATUS=6701;
+	private static int MODE=6700;
     MySecurityCamera() {
-        Tracker tracker = new Tracker();
+        tracker = new Tracker();
         try {
 			tracker.startTracking();
 			tracker.addSecurityCameraListener(this);
@@ -35,45 +39,41 @@ public class MySecurityCamera extends BaseInstanceEnabler implements SecurityCam
     }
 
 	@Override
-	public void addResourceChangedListener(ResourceChangedListener listener) {
-		// TODO Auto-generated method stub
-		super.addResourceChangedListener(listener);
+	public synchronized ReadResponse read(int resourceid) {
+		switch (resourceid) {
+		case MODE:
+			return ReadResponse.success(resourceid,tracker.getSecurityMode());			
+			break;
+		case STATUS:
+			return ReadResponse.success(resourceid, tracker.getStatus());
+
+		default:
+			break;
+		}
 	}
 
 	@Override
-	public void removeResourceChangedListener(ResourceChangedListener listener) {
-		// TODO Auto-generated method stub
-		super.removeResourceChangedListener(listener);
-	}
-
-	@Override
-	public void fireResourcesChange(int... resourceIds) {
-		// TODO Auto-generated method stub
-		super.fireResourcesChange(resourceIds);
-	}
-
-	@Override
-	public ReadResponse read(int resourceid) {
-		// TODO Auto-generated method stub
-		return super.read(resourceid);
-	}
-
-	@Override
-	public WriteResponse write(int resourceid, LwM2mResource value) {
+	public synchronized WriteResponse write(int resourceid, LwM2mResource value) {
 		// TODO Auto-generated method stub
 		return super.write(resourceid, value);
 	}
 
 	@Override
-	public ExecuteResponse execute(int resourceid, String params) {
+	public synchronized ExecuteResponse execute(int resourceid, String params) {
 		// TODO Auto-generated method stub
 		return super.execute(resourceid, params);
 	}
 
 	@Override
-	public void reset(int resourceid) {
+	public synchronized void reset(int resourceid) {
 		// TODO Auto-generated method stub
 		super.reset(resourceid);
+	}
+
+	@Override
+	public void fireSecurityAlert(Mat image, Mat previousImage) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

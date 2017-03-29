@@ -1,12 +1,16 @@
 package org.poseidon;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.omg.CORBA.OMGVMCID;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -43,8 +47,10 @@ public class Tracker {
 	public void startTracking() throws Exception {
 
 		Mat image = new Mat();
-		Mat thresholdedImage = new Mat();
-		Mat hsvImage = new Mat();
+		Mat previousImage = new Mat();
+		Mat avgImage = new Mat();
+		Mat grayImage = new Mat();
+		Mat absDiffImage = new Mat();
 		VideoCapture capture = null;
 		if (video == null) {
 			capture = new VideoCapture(0);
@@ -67,26 +73,36 @@ public class Tracker {
 				if (capture.isOpened()) {
 					
 					while (true) {
-						int count=0;
+						
 						capture.read(image);
 						
 						if (!image.empty()) {
-							Imgproc.cvtColor(image, hsvImage, Imgproc.COLOR_BGR2HSV);
-							Imgproc.GaussianBlur(hsvImage,hsvImage,new Size(21, 21), 0);							
-							Imgproc.threshold(hsvImage, hsvImage, 25, 255, Imgproc.THRESH_BINARY);
-							Imgproc.dilate(hsvImage, hsvImage, null,new Point(-1,-1),2);
 							
+							//pre-process
+							
+							Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
+							Imgproc.GaussianBlur(grayImage,grayImage,new Size(21, 21), 0);							
+							if(avgImage.empty())
+							{
+								grayImage.copyTo(avgImage);
+								continue;
+							}
+							Core.absdiff(grayImage, avgImage, absDiffImage);
+							Imgproc.accumulateWeighted(grayImage,avgImage, 0.5);						
+							
+							//process
 							List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 							Mat temp = new Mat();
 							Mat hierarchy = new Mat();
-							hsvImage.copyTo(temp);
-							Imgproc.findContours(temp, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+							grayImage.copyTo(temp);
+							Imgproc.findContours(absDiffImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 							if (contours.size() > 0) {
 								int numObjects = contours.size();
 						
 								//large number of objects, we have a noisy filter
 								if (numObjects < MAX_NUM_OBJECTS) {
-						
+									int currenTrackedObjects=0;
+									int previousTrackedObjects=0;
 									for (int i=0; i< contours.size(); i++){
 										Moments moment = Imgproc.moments(contours.get(i));
 										double area = moment.get_m00();
@@ -99,14 +115,20 @@ public class Tracker {
 											if(centroid.x>MIN_X_BORDER && centroid.x<temp.size().width-MIN_X_BORDER &&
 													centroid.y>MIN_Y_BORDER && centroid.y<temp.size().height-MIN_Y_BORDER	)
 											{
-												count++;
+												currenTrackedObjects++;
 											}
-											else//some is coming
+											else//some is coming or leaving to the tracked area
 											{
 												
 											}
 
 										}
+										if(previousTrackedObjects>currenTrackedObjects)
+										{
+											securityCameraListener.fireSecurityAlert(image,previousImage);
+										}
+										previousTrackedObjects=currenTrackedObjects;
+										currenTrackedObjects=0;
 									}
 								}
 							}
