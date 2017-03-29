@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.omg.CORBA.OMGVMCID;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -26,11 +26,14 @@ public class Tracker {
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
-	@Parameter(description = "localtion of the video file or ipcamaddress")
-	private String video;
 
-	@Parameter(description = "max number of results.")
-	private int maxResults = 10;
+	private String video;
+	Tracker(String video)
+	{
+		this.video=video;
+	}
+	private enum Status{MOTION_SENSOR,DROWNING_SENSOR}
+	private Status status=Status.DROWNING_SENSOR;
 	private JPanel panelCamera = new JPanel();
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
 	private JFrame frameThreshold;
@@ -52,6 +55,7 @@ public class Tracker {
 		Mat grayImage = new Mat();
 		Mat absDiffImage = new Mat();
 		VideoCapture capture = null;
+		
 		if (video == null) {
 			capture = new VideoCapture(0);
 		} else {
@@ -167,5 +171,14 @@ public class Tracker {
 	public void addSecurityCameraListener(SecurityCameraListener mySecurityCamera) {
 		this.securityCameraListener=securityCameraListener;
 		
+	}
+
+	public String getStatus() {		
+		return status.name();
+	}
+
+	public String getSecurityMode() {
+		// TODO Auto-generated method stub
+		return securityMode;
 	}
 }

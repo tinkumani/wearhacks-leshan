@@ -27,8 +27,8 @@ import org.poseidon.Tracker;
 
 public class MySecurityCamera extends BaseInstanceEnabler implements SecurityCameraListener{
 	 Tracker tracker=null;
-	private static int STATUS=6701;
-	private static int MODE=6700;
+	private static final int STATUS=6701;
+	private static final int MODE=6700;
     MySecurityCamera() {
         tracker = new Tracker();
         try {
@@ -43,13 +43,13 @@ public class MySecurityCamera extends BaseInstanceEnabler implements SecurityCam
 		switch (resourceid) {
 		case MODE:
 			return ReadResponse.success(resourceid,tracker.getSecurityMode());			
-			break;
 		case STATUS:
 			return ReadResponse.success(resourceid, tracker.getStatus());
 
 		default:
-			break;
+			
 		}
+		return null;
 	}
 
 	@Override
