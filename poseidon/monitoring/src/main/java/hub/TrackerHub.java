@@ -1,7 +1,9 @@
 package hub;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
@@ -15,8 +17,9 @@ import org.poseidon.led.LedControl;
 
 
 public class TrackerHub {
-	Map<String,InputControl> inputControls=new HashMap<String,InputControl>(){{put("abc",new Camera());}};
-	OutputControl[] outputControls=new OutputControl[]{new LedControl()};
+	Map<String,InputControl> inputControls=new HashMap<String,InputControl>(){{put("67",new Camera());}};
+	Map<String,OutputControl> outputControls=new HashMap<String,OutputControl>(){{put("77",new LedControl());}};
+	private TrackerListener trackerListener;
 	public TrackerHub() {
 
 	}
@@ -24,14 +27,14 @@ public class TrackerHub {
 		// TODO Auto-generated method stub
 		
 	}
-	public void addTrackerListener(TrackerListener mySecurityHub) {
-		// TODO Auto-generated method stub
+	public void addTrackerListener(TrackerListener trackerListener) {
+		this.trackerListener=trackerListener;
 		
 	}
 	public ReadResponse read(int resourceid) {
-		// TODO Auto-generated method stub
-		return null;
+		inputControls.get(getInputId(resourceid)).readValue(getResourceId(resourceid));
 	}
+	
 	public WriteResponse write(int resourceid, LwM2mResource value) {
 		// TODO Auto-generated method stub
 		return null;
@@ -43,7 +46,15 @@ public class TrackerHub {
 	public void reset(int resourceid) {
 		// TODO Auto-generated method stub
 		
+	
+
 	}
-
-
+	private Object getInputId(int resourceid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	private Object getResourceId(int resourceid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
