@@ -18,7 +18,11 @@
   		<groupId>nu.pattern</groupId>
   		<artifactId>opencv</artifactId>
   	</dependency>
-
+ <dependency>
+            <groupId>org.eclipse.leshan</groupId>
+            <artifactId>leshan-core</artifactId>
+             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
   </dependencies>
   <dependencyManagement>
   	<dependencies>

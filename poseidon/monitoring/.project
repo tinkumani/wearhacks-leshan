@@ -3,6 +3,7 @@
 	<name>monitoring</name>
 	<comment>An OMA Lightweight M2M (LWM2M) implementation in Java. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
 	<projects>
+		<project>leshan-core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

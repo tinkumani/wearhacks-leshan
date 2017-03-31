@@ -225,7 +225,7 @@ public class LeshanClientDemo {
         // Create instances of LWM2M objects
         // initializer.setInstancesForObject(LOCATION, locationInstance);
         // initializer.setInstancesForObject(OBJECT_ID_TEMPERATURE_SENSOR, new RandomTemperatureSensor());
-        initializer.setInstancesForObject(OBJECT_ID_SECURITY_CAM, new MySecurityCamera());
+        initializer.setInstancesForObject(OBJECT_ID_SECURITY_CAM, new MySecurityHub());
 
         // Add objects to enabler list
         List<LwM2mObjectEnabler> enablers = initializer.create(SECURITY, SERVER, DEVICE, OBJECT_ID_SECURITY_CAM);

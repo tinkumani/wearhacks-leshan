@@ -11,6 +11,11 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6.jar" sourcepath="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/nu/pattern/opencv/2.4.9-4/opencv-2.4.9-4.jar" sourcepath="M2_REPO/nu/pattern/opencv/2.4.9-4/opencv-2.4.9-4-sources.jar"/>
+	<classpathentry kind="src" path="/leshan-core"/>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4-sources.jar"/>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
@@ -22,9 +27,13 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/poseidon/lib/opencv-320.jar">
+	<classpathentry kind="lib" path="/home/lovelin/.m2/repository/nu/pattern/opencv/2.4.9-4/opencv-2.4.9-4.jar" sourcepath="/home/lovelin/.m2/repository/nu/pattern/opencv/2.4.9-4/opencv-2.4.9-4-sources.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/leshan/wearhacks-leshan/poseidon/lib"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="nu.pattern"/>
+			<attribute name="maven.artifactId" value="opencv"/>
+			<attribute name="maven.version" value="2.4.9-4"/>
+			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>

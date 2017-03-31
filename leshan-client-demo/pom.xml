@@ -27,6 +27,7 @@ Contributors:
     <description>A demonstration client built upon the Leshan client.</description>
 
     <dependencies>
+    
         <dependency>
             <groupId>org.eclipse.leshan</groupId>
             <artifactId>leshan-client-cf</artifactId>
@@ -43,9 +44,9 @@ Contributors:
             <scope>runtime</scope>
         </dependency>
         <dependency>
-   			<groupId>org.poseidon</groupId>
-  			<artifactId>monitoring</artifactId>
-   			<version>1.0.0-SNAPSHOT</version>
+         <groupId>org.poseidon</groupId>
+ 		 <artifactId>monitoring</artifactId>
+  		 <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

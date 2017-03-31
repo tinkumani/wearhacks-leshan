@@ -18,18 +18,21 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
+import org.poseidon.InputControl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-public class Camera {
+public class Camera implements InputControl{
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
 	private String video;
-	Camera(String video)
-	{
+	public Camera(){
+		
+	}
+	Camera(String video){
 		this.video=video;
 	}
 	private enum Status{MOTION_SENSOR,DROWNING_SENSOR}
@@ -164,7 +167,6 @@ public class Camera {
 
 	public static void main(String[] args) throws Exception {
 		Camera tracker = new Camera();
-		new JCommander(tracker, args);
 		tracker.startTracking();
 	}
 
@@ -175,10 +177,5 @@ public class Camera {
 
 	public String getStatus() {
 		return status.name();
-	}
-
-	public String getSecurityMode() {
-		// TODO Auto-generated method stub
-		return securityMode;
 	}
 }
