@@ -1,4 +1,4 @@
-package org.poseidon;
+package org.poseidon.camera;
 
 import org.opencv.core.Mat;
 

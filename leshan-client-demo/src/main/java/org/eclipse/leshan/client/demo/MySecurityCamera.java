@@ -22,15 +22,15 @@ import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.opencv.core.Mat;
-import org.poseidon.SecurityCameraListener;
-import org.poseidon.Tracker;
+import org.poseidon.Camera;
+import org.poseidon.camera.SecurityCameraListener;
 
 public class MySecurityCamera extends BaseInstanceEnabler implements SecurityCameraListener{
-	 Tracker tracker=null;
+	 Camera tracker=null;
 	private static final int STATUS=6701;
 	private static final int MODE=6700;
     MySecurityCamera() {
-        tracker = new Tracker();
+        tracker = new Camera();
         try {
 			tracker.startTracking();
 			tracker.addSecurityCameraListener(this);

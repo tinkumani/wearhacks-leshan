@@ -1,4 +1,4 @@
-package org.poseidon;
+package org.poseidon.camera;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,13 +22,13 @@ import org.opencv.videoio.VideoCapture;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-public class Tracker {
+public class Camera {
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
 	private String video;
-	Tracker(String video)
+	Camera(String video)
 	{
 		this.video=video;
 	}
@@ -39,7 +39,7 @@ public class Tracker {
 	private JFrame frameThreshold;
 	//max number of objects to be detected in frame
 		private final int MAX_NUM_OBJECTS = 50;
-		
+
 		//minimum and maximum object area
 		private final int MIN_OBJECT_AREA = 40 * 40;
        //Ignore the image border
@@ -55,7 +55,7 @@ public class Tracker {
 		Mat grayImage = new Mat();
 		Mat absDiffImage = new Mat();
 		VideoCapture capture = null;
-		
+
 		if (video == null) {
 			capture = new VideoCapture(0);
 		} else {
@@ -71,29 +71,29 @@ public class Tracker {
 				} catch (Exception e){
 					throw new Exception("Could not read from camera. Maybe the URL is not correct.");
 				}
-				 
+
 				setFramesSizes(image);
-				
+
 				if (capture.isOpened()) {
-					
+
 					while (true) {
-						
+
 						capture.read(image);
-						
+
 						if (!image.empty()) {
-							
+
 							//pre-process
-							
+
 							Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
-							Imgproc.GaussianBlur(grayImage,grayImage,new Size(21, 21), 0);							
+							Imgproc.GaussianBlur(grayImage,grayImage,new Size(21, 21), 0);
 							if(avgImage.empty())
 							{
 								grayImage.copyTo(avgImage);
 								continue;
 							}
 							Core.absdiff(grayImage, avgImage, absDiffImage);
-							Imgproc.accumulateWeighted(grayImage,avgImage, 0.5);						
-							
+							Imgproc.accumulateWeighted(grayImage,avgImage, 0.5);
+
 							//process
 							List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 							Mat temp = new Mat();
@@ -102,7 +102,7 @@ public class Tracker {
 							Imgproc.findContours(absDiffImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 							if (contours.size() > 0) {
 								int numObjects = contours.size();
-						
+
 								//large number of objects, we have a noisy filter
 								if (numObjects < MAX_NUM_OBJECTS) {
 									int currenTrackedObjects=0;
@@ -110,8 +110,8 @@ public class Tracker {
 									for (int i=0; i< contours.size(); i++){
 										Moments moment = Imgproc.moments(contours.get(i));
 										double area = moment.get_m00();
-						
-										//small objects,just noise										
+
+										//small objects,just noise
 										if (area > MIN_OBJECT_AREA) {
 											Point centroid = new Point();
 											centroid.x = moment.get_m10() / moment.get_m00();
@@ -123,7 +123,7 @@ public class Tracker {
 											}
 											else//some is coming or leaving to the tracked area
 											{
-												
+
 											}
 
 										}
@@ -136,7 +136,7 @@ public class Tracker {
 									}
 								}
 							}
-										
+
 						}
 						else{
 					}
@@ -146,10 +146,10 @@ public class Tracker {
 	}
 
 	private JFrame createFrame(String frameName, JPanel panel) {
-		JFrame frame = new JFrame(frameName); 	
+		JFrame frame = new JFrame(frameName);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
-		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());		
+		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 		frame.setContentPane(panel);
 		frame.setVisible(true);
 		return frame;
@@ -157,23 +157,23 @@ public class Tracker {
 
 	private void setFramesSizes(Mat image) {
 		frameCamera.setSize(image.width() + 20, image.height() + 60);
-		
-		
-		
+
+
+
 	}
 
 	public static void main(String[] args) throws Exception {
-		Tracker tracker = new Tracker();
+		Camera tracker = new Camera();
 		new JCommander(tracker, args);
 		tracker.startTracking();
 	}
 
 	public void addSecurityCameraListener(SecurityCameraListener mySecurityCamera) {
 		this.securityCameraListener=securityCameraListener;
-		
+
 	}
 
-	public String getStatus() {		
+	public String getStatus() {
 		return status.name();
 	}
 

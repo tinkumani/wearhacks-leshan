@@ -92,7 +92,7 @@ Contributors:
                             <mainClass>org.eclipse.leshan.server.bootstrap.demo.LeshanBootstrapServerDemo</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>
+                    <descriptorRefs>jar
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
@@ -111,11 +111,6 @@ Contributors:
                 <artifactId>replacer</artifactId>
                 <version>1.5.3</version>
                 <executions>
-                    <execution>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
                 </executions>
                 <configuration>
                     <file>${project.build.directory}/classes/webapp/index.html</file>
