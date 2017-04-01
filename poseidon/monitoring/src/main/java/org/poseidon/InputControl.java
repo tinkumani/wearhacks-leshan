@@ -1,5 +1,9 @@
 package org.poseidon;
 
-public interface InputControl {
+import org.eclipse.leshan.core.response.ReadResponse;
+
+public interface InputControl extends GenericControl {
+
+	ReadResponse readValue(int resourceId);
 
 }

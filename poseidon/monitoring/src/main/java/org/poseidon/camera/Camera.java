@@ -8,7 +8,8 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-
+import org.eclipse.leshan.core.response.ReadResponse;
+import org.eclipse.leshan.core.response.WriteResponse;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -18,12 +19,15 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
+import org.poseidon.EventDetails;
+import org.poseidon.IOControl;
+import org.poseidon.IOListener;
 import org.poseidon.InputControl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-public class Camera implements InputControl{
+public class Camera implements IOControl{
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
@@ -49,7 +53,7 @@ public class Camera implements InputControl{
 		private double MIN_X_BORDER=10;
 		private double MIN_Y_BORDER=10;
 
-		private SecurityCameraListener securityCameraListener;
+		private IOListener ioListener;
 	public void startTracking() throws Exception {
 
 		Mat image = new Mat();
@@ -132,7 +136,8 @@ public class Camera implements InputControl{
 										}
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
-											securityCameraListener.fireSecurityAlert(image,previousImage);
+											//securityCameraListener.fireSecurityAlert(image,previousImage);
+											ioListener.eventOccured(resourceId, new SecurityCameraEvent));
 										}
 										previousTrackedObjects=currenTrackedObjects;
 										currenTrackedObjects=0;
@@ -170,12 +175,28 @@ public class Camera implements InputControl{
 		tracker.startTracking();
 	}
 
-	public void addSecurityCameraListener(SecurityCameraListener mySecurityCamera) {
-		this.securityCameraListener=securityCameraListener;
-
-	}
 
 	public String getStatus() {
 		return status.name();
+	}
+	@Override
+	public ReadResponse readValue(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public WriteResponse writeValue(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void eventReceived(int resourceId, EventDetails eventDetails) {
+		// Not Interested in other events
+		
+	}
+	@Override
+	public void addIOListerner(IOListener iolistener) {
+		this.ioListener=iolistener;
+		
 	}
 }
