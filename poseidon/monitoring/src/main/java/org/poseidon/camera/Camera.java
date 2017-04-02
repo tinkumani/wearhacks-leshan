@@ -28,6 +28,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 public class Camera implements IOControl{
+	public static int RESOURCE_ID=67;
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
@@ -137,7 +138,7 @@ public class Camera implements IOControl{
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
 											//securityCameraListener.fireSecurityAlert(image,previousImage);
-											ioListener.eventOccured(resourceId, new SecurityCameraEvent));
+											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent));
 										}
 										previousTrackedObjects=currenTrackedObjects;
 										currenTrackedObjects=0;

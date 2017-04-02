@@ -20,15 +20,15 @@ import org.poseidon.led.LedControl;
 
 
 public class TrackerHub implements IOListener{
-	Map<String,IOControl> inputOutputControls=new HashMap<String,IOControl>(){{put("67",new Camera());}};
-	Map<String,OutputControl> outputControls=new HashMap<String,OutputControl>(){{put("77",new LedControl());}};
-	Map<String,InputControl> inputControls=new HashMap<String,InputControl>(){};
+	Map<Integer,IOControl> inputOutputControls=new HashMap<Integer,IOControl>(){{put(Camera.RESOURCE_ID,new Camera());}};
+	Map<Integer,OutputControl> outputControls=new HashMap<Integer,OutputControl>(){{put(LedControl.RESOURCE_ID,new LedControl());}};
+	Map<Integer,InputControl> inputControls=new HashMap<Integer,InputControl>(){};
 	private TrackerListener trackerListener;
 	public TrackerHub() {
 
 	}
 	public void startTracking() {
-		for (Map.Entry<String, IOControl> entry : inputOutputControls.entrySet()) {
+		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 		entry.getValue().addIOListerner(this);
 		}
 		
@@ -45,14 +45,29 @@ public class TrackerHub implements IOListener{
 		return outputControls.get(getIId(resourceid)).writeValue(getRId(resourceid));
 	}
 	public ExecuteResponse execute(int resourceid, String params) {
-		// TODO Auto-generated method stub
+		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
+			return entry.getValue().execute(resourceid,params);
+			}
+		for (Map.Entry<Integer, OutputControl> entry : outputControls.entrySet()) {
+			return entry.getValue().execute(resourceid,params);
+			}
+		for (Map.Entry<Integer, InputControl> entry : inputControls.entrySet()) {
+			return entry.getValue().execute(resourceid,params);
+			}
 		return null;
 	}
 	public void reset(int resourceid) {
-		// TODO Auto-generated method stub
 		
+		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
+			entry.getValue().reset(resourceid);
+			}
+		for (Map.Entry<Integer, OutputControl> entry : outputControls.entrySet()) {
+			entry.getValue().reset(resourceid);
+			}
+		for (Map.Entry<Integer, InputControl> entry : inputControls.entrySet()) {
+			entry.getValue().reset(resourceid);
+			}
 	
-
 	}
 	private int getIId(int resourceid) {
 		// TODO Auto-generated method stub
@@ -65,13 +80,13 @@ public class TrackerHub implements IOListener{
 	@Override
 	public void eventOccured(int resourceId, EventDetails eventDetails) {
 		//Announce the event
-		for (Map.Entry<String, IOControl> entry : inputOutputControls.entrySet()) {
+		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 			entry.getValue().eventReceived(resourceId,eventDetails);
 			}
-		for (Map.Entry<String, OutputControl> entry : outputControls.entrySet()) {
+		for (Map.Entry<Integer, OutputControl> entry : outputControls.entrySet()) {
 			entry.getValue().eventReceived(resourceId,eventDetails);
 			}
-		for (Map.Entry<String, InputControl> entry : inputControls.entrySet()) {
+		for (Map.Entry<Integer, InputControl> entry : inputControls.entrySet()) {
 			entry.getValue().eventReceived(resourceId,eventDetails);
 			}
 		trackerListener.eventReceived(resourceId,eventDetails);
