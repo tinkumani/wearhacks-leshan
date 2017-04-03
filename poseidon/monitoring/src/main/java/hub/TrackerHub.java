@@ -15,13 +15,15 @@ import org.poseidon.IOListener;
 import org.poseidon.InputControl;
 import org.poseidon.OutputControl;
 import org.poseidon.camera.Camera;
+import org.poseidon.chat.FacebookChatControl;
+import org.poseidon.dropbox.DropBoxControl;
 import org.poseidon.led.LedControl;
 
 
 
 public class TrackerHub implements IOListener{
-	Map<Integer,IOControl> inputOutputControls=new HashMap<Integer,IOControl>(){{put(Camera.RESOURCE_ID,new Camera());}};
-	Map<Integer,OutputControl> outputControls=new HashMap<Integer,OutputControl>(){{put(LedControl.RESOURCE_ID,new LedControl());}};
+	Map<Integer,IOControl> inputOutputControls=new HashMap<Integer,IOControl>(){{put(Camera.RESOURCE_ID,new Camera());put(FacebookChatControl.RESOURCE_ID,new FacebookChatControl());}};
+	Map<Integer,OutputControl> outputControls=new HashMap<Integer,OutputControl>(){{put(LedControl.RESOURCE_ID,new LedControl());put(DropBoxControl.RESOURCE_ID,new DropBoxControl());}};
 	Map<Integer,InputControl> inputControls=new HashMap<Integer,InputControl>(){};
 	private TrackerListener trackerListener;
 	public TrackerHub() {
@@ -31,16 +33,16 @@ public class TrackerHub implements IOListener{
 		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 		entry.getValue().addIOListerner(this);
 		}
-		
+
 	}
 	public void addTrackerListener(TrackerListener trackerListener) {
 		this.trackerListener=trackerListener;
-		
+
 	}
 	public ReadResponse read(int resourceid) {
 		return inputOutputControls.get(getIId(resourceid)).readValue(getRId(resourceid));
 	}
-	
+
 	public WriteResponse write(int resourceid, LwM2mResource value) {
 		return outputControls.get(getIId(resourceid)).writeValue(getRId(resourceid));
 	}
@@ -57,7 +59,7 @@ public class TrackerHub implements IOListener{
 		return null;
 	}
 	public void reset(int resourceid) {
-		
+
 		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 			entry.getValue().reset(resourceid);
 			}
@@ -67,14 +69,12 @@ public class TrackerHub implements IOListener{
 		for (Map.Entry<Integer, InputControl> entry : inputControls.entrySet()) {
 			entry.getValue().reset(resourceid);
 			}
-	
+
 	}
 	private int getIId(int resourceid) {
-		// TODO Auto-generated method stub
 		return resourceid/100;
 	}
 	private int getRId(int resourceid) {
-		// TODO Auto-generated method stub
 		return resourceid%100;
 	}
 	@Override
@@ -90,6 +90,6 @@ public class TrackerHub implements IOListener{
 			entry.getValue().eventReceived(resourceId,eventDetails);
 			}
 		trackerListener.eventReceived(resourceId,eventDetails);
-		
+
 	}
 }

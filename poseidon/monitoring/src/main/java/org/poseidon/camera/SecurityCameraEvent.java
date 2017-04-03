@@ -6,8 +6,12 @@ import org.poseidon.EventDetails;
 
 public class SecurityCameraEvent extends EventDetails {
 
+	private BufferedImage currentImage;
+	private BufferedImage previosImage;
+
 	public SecurityCameraEvent(BufferedImage buffImage, BufferedImage buffImage2) {
-		// TODO Auto-generated constructor stub
+		this.previosImage=buffImage;
+		this.currentImage=buffImage2;
 	}
 
 }

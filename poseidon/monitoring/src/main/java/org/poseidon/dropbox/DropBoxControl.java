@@ -6,7 +6,7 @@ import org.poseidon.EventDetails;
 import org.poseidon.OutputControl;
 
 public class DropBoxControl implements OutputControl {
-
+	public static int RESOURCE_ID=77;
 	@Override
 	public void eventReceived(int resourceId, EventDetails eventDetails) {
 		// TODO Auto-generated method stub

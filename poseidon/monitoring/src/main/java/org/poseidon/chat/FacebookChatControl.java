@@ -8,6 +8,7 @@ import org.poseidon.IOControl;
 import org.poseidon.IOListener;
 
 public class FacebookChatControl implements IOControl {
+	public static int RESOURCE_ID=68;
 
 	@Override
 	public ReadResponse readValue(int resourceId) {

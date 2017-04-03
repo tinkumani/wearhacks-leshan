@@ -22,7 +22,6 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
@@ -42,16 +41,24 @@ public class Camera implements IOControl{
 
 	private String video;
 	public Camera(){
-		
+
 	}
 	Camera(String video){
 		this.video=video;
 	}
 	private enum Status{MOTION_SENSOR,DROWNING_SENSOR}
 	private Status status=Status.DROWNING_SENSOR;
-	private JPanel panelCamera = new JPanel();
+	//RawImage
+	private CameraPanels panelCamera = new CameraPanels();
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
-	private JFrame frameThreshold;
+	//Avg Image
+	private CameraPanels panelAvgCamera = new CameraPanels();
+	private JFrame frameAvgCamera = createFrame("AverageImage", panelCamera);
+	//Tracked Objects
+	private CameraPanels trackedObjectsCamera = new CameraPanels();
+	private JFrame frameTrackedObjects = createFrame("Tracked Objects", panelCamera);
+
+
 	//max number of objects to be detected in frame
 		private final int MAX_NUM_OBJECTS = 50;
 
@@ -78,7 +85,7 @@ public class Camera implements IOControl{
 
 		}
 		if (capture == null){
-			throw new Exception("Could not conect to camera.");
+			throw new Exception("Could not connect to camera.");
 		}
 		// Captures one image, for starting the process.
 				try{
@@ -144,7 +151,6 @@ public class Camera implements IOControl{
 										}
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
-											//securityCameraListener.fireSecurityAlert(image,previousImage);
 											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
 										}
 										previousTrackedObjects=currenTrackedObjects;
@@ -206,12 +212,12 @@ public class Camera implements IOControl{
 	@Override
 	public void eventReceived(int resourceId, EventDetails eventDetails) {
 		// Not Interested in other events
-		
+
 	}
 	@Override
 	public void addIOListerner(IOListener iolistener) {
 		this.ioListener=iolistener;
-		
+
 	}
 	@Override
 	public ExecuteResponse execute(int resourceid, String params) {
@@ -221,6 +227,6 @@ public class Camera implements IOControl{
 	@Override
 	public void reset(int resourceid) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
