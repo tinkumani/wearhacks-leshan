@@ -1,21 +1,28 @@
 package org.poseidon.camera;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
@@ -138,7 +145,7 @@ public class Camera implements IOControl{
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
 											//securityCameraListener.fireSecurityAlert(image,previousImage);
-											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent));
+											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
 										}
 										previousTrackedObjects=currenTrackedObjects;
 										currenTrackedObjects=0;
@@ -154,6 +161,12 @@ public class Camera implements IOControl{
 	}
 	}
 
+	private BufferedImage toBuffImage(Mat image) throws IOException {
+		MatOfByte bytemat = new MatOfByte();
+		Highgui.imencode(".jpg", image, bytemat);
+		byte[] bytes = bytemat.toArray();
+		return ImageIO.read(new ByteArrayInputStream(bytes));
+	}
 	private JFrame createFrame(String frameName, JPanel panel) {
 		JFrame frame = new JFrame(frameName);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -198,6 +211,16 @@ public class Camera implements IOControl{
 	@Override
 	public void addIOListerner(IOListener iolistener) {
 		this.ioListener=iolistener;
+		
+	}
+	@Override
+	public ExecuteResponse execute(int resourceid, String params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void reset(int resourceid) {
+		// TODO Auto-generated method stub
 		
 	}
 }
