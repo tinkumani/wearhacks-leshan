@@ -44,7 +44,7 @@ public class TrackerHub implements IOListener{
 	}
 
 	public WriteResponse write(int resourceid, LwM2mResource value) {
-		return outputControls.get(getIId(resourceid)).writeValue(getRId(resourceid));
+		return outputControls.get(getIId(resourceid)).writeValue(getRId(resourceid),value);
 	}
 	public ExecuteResponse execute(int resourceid, String params) {
 		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {

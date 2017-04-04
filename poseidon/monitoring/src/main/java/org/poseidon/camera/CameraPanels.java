@@ -8,10 +8,17 @@ import javax.swing.JPanel;
 public class CameraPanels extends JPanel {
 
 	private BufferedImage image;
+	private String name;
+
+	public CameraPanels(String name) {
+		this.name=name;
+	}
 
 	public void setImage(BufferedImage bufferedImage)
 	{
 		this.image=bufferedImage;
+		repaint();
+		System.out.println("Repainted..."+name);
 	}
 
 	@Override

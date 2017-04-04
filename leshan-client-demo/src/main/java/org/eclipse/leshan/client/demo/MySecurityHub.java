@@ -22,6 +22,7 @@ import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.opencv.core.Mat;
+import org.poseidon.EventDetails;
 import org.poseidon.camera.SecurityCameraListener;
 
 import hub.TrackerHub;
@@ -29,9 +30,7 @@ import hub.TrackerListener;
 
 public class MySecurityHub extends BaseInstanceEnabler implements TrackerListener{
 	 public TrackerHub tracker=null;
-	private static final int STATUS=6701;
-	private static final int MODE=6700;
-    MySecurityHub() {
+	MySecurityHub() {
         tracker = new TrackerHub();
         try {
 			tracker.startTracking();
@@ -58,8 +57,13 @@ public class MySecurityHub extends BaseInstanceEnabler implements TrackerListene
 
 	@Override
 	public synchronized void reset(int resourceid) {
-		// TODO Auto-generated method stub
 		tracker.reset(resourceid);
+	}
+
+	@Override
+	public void eventReceived(int resourceId, EventDetails eventDetails) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

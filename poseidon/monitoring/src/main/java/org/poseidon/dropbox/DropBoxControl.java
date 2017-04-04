@@ -1,5 +1,6 @@
 package org.poseidon.dropbox;
 
+import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.poseidon.EventDetails;
@@ -26,7 +27,7 @@ public class DropBoxControl implements OutputControl {
 	}
 
 	@Override
-	public WriteResponse writeValue(int rId) {
+	public WriteResponse writeValue(int rId,LwM2mResource resource) {
 		// TODO Auto-generated method stub
 		return null;
 	}

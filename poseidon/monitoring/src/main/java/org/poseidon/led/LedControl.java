@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.poseidon.EventDetails;
@@ -116,7 +117,7 @@ public class LedControl extends JPanel implements OutputControl{
 	}
 
 	@Override
-	public WriteResponse writeValue(int rId) {
+	public WriteResponse writeValue(int rId,LwM2mResource resource) {
 		// TODO Auto-generated method stub
 		return null;
 	}

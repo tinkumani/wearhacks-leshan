@@ -26,9 +26,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/opt/leshan/wearhacks-leshan/poseidon/lib/opencv-320.jar">
+	<classpathentry kind="lib" path="/poseidon/lib/opencv-320.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/leshan/wearhacks-leshan/poseidon/lib"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/poseidon/wearhacks-leshan/poseidon/lib"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>

@@ -1,5 +1,6 @@
 package org.poseidon.chat;
 
+import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
@@ -35,7 +36,7 @@ public class FacebookChatControl implements IOControl {
 	}
 
 	@Override
-	public WriteResponse writeValue(int rId) {
+	public WriteResponse writeValue(int rId,LwM2mResource resource) {
 		// TODO Auto-generated method stub
 		return null;
 	}
