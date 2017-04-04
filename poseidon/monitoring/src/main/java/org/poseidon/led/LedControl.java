@@ -14,11 +14,13 @@ import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
 import org.poseidon.EventDetails;
 import org.poseidon.OutputControl;
+import org.poseidon.camera.Camera;
 
 public class LedControl extends JPanel implements OutputControl{
 	public static int RESOURCE_ID=77;
-	
-	
+	private static final int ENABLE_LED_CONTROl = 21;
+
+
 	private JFrame jframe;
 	private JPanel jpanel;
 	public LedControl() {
@@ -33,36 +35,36 @@ public class LedControl extends JPanel implements OutputControl{
 				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 				Dimension frameSize = jframe.getSize();
 				jframe.setLocation(((screenSize.width - frameSize.width) / 2),
-									((screenSize.height - frameSize.height) / 2));		
+									((screenSize.height - frameSize.height) / 2));
 				jframe.getContentPane().add(jpanel, BorderLayout.SOUTH);
 				jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				jframe.setVisible(true);
 			}
-	
+
 		/** Variable to store the current state of the traffic light.
 		 * @ lightState = 1 (Red)
 		 * @ lightState = 2 (Yellow)
 		 * @ lightState = 3 (Green)
 		 */
-		private int lightState = 1;	 
+		private int lightState = 1;
 
 		/**
 		 * This method repaints the light status
 		 */
-		public void changeColor() {		
+		public void changeColor() {
 			lightState++;
 
 			if (lightState > 3) {
 				lightState = 1;
-			}	
-			repaint();	
+			}
+			repaint();
 		}
 
 		/**
 		 * This method draws the traffic light on the screen
 		 */
 		public void paintComponent(Graphics g) {
-			super.paintComponent(g);		
+			super.paintComponent(g);
 
 			// Draws the traffic light
 			// Draw out white frame
@@ -74,9 +76,9 @@ public class LedControl extends JPanel implements OutputControl{
 			g.fillRoundRect(50,30,90,195,30,30);
 			g.drawRoundRect(35,15,120,225,30,30);
 
-			// RED bulb dim		
+			// RED bulb dim
 			g.setColor(new Color(100,0,0));
-			g.fillOval(70,40,50,50);		
+			g.fillOval(70,40,50,50);
 
 			// YELLOW bulb dim
 			g.setColor(new Color(100,100,0));
@@ -94,32 +96,40 @@ public class LedControl extends JPanel implements OutputControl{
 			case 1:
 				// RED bulb glows
 				g.setColor(new Color(255,0,0));
-				g.fillOval(70,40,50,50);				
+				g.fillOval(70,40,50,50);
 				break;
 
 			case 2:
 				// YELLOW bulb glows
 				g.setColor(new Color(255,255,0));
-				g.fillOval(70,100,50,50);		
+				g.fillOval(70,100,50,50);
 				break;
 
 			case 3:
 				// GREEN bulb glows
 				g.setColor(new Color(0,255,0));
-				g.fillOval(70,160,50,50);		
-				break;		
+				g.fillOval(70,160,50,50);
+				break;
 			}
 		}
 	@Override
 	public void eventReceived(int resourceId, EventDetails eventDetails) {
-		// TODO Auto-generated method stub
-		
+		switch(resourceId)
+		{
+		case Camera.RESOURCE_ID:lightState=2;break;
+		}
+
 	}
 
 	@Override
 	public WriteResponse writeValue(int rId,LwM2mResource resource) {
-		// TODO Auto-generated method stub
-		return null;
+		switch(rId)
+		{
+
+		case ENABLE_LED_CONTROl:launch();break;
+
+		}
+		return WriteResponse.success();
 	}
 
 	@Override
@@ -131,8 +141,8 @@ public class LedControl extends JPanel implements OutputControl{
 	@Override
 	public void reset(int resourceid) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 
 }

@@ -36,7 +36,7 @@ public class Camera implements IOControl{
 	private static final int ENABLE_AVG_CAMERA = 12;
 	private static final int TRACKED_OBJECTS_CAMERA = 13;
 	private static final int SENSITIVITY = 14;
-	public static int RESOURCE_ID=67;
+	public static final int RESOURCE_ID=67;
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
@@ -69,7 +69,7 @@ public class Camera implements IOControl{
        //Ignore the image border
 		private double MIN_X_BORDER=10;
 		private double MIN_Y_BORDER=10;
-		
+
 		private int sensitivity=100;
 
 		private IOListener ioListener;
@@ -94,7 +94,7 @@ public class Camera implements IOControl{
 		// Captures one image, for starting the process.
 				try{
 					capture.read(image);
-					
+
 				} catch (Exception e){
 					throw new Exception("Could not read from camera. Maybe the URL is not correct.");
 				}
@@ -115,16 +115,16 @@ public class Camera implements IOControl{
 
 							Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
 							Imgproc.GaussianBlur(grayImage,grayImage,new Size(21, 21), 0);
-							
+
 							Mat grayImageFloating=new Mat();
 							grayImage.convertTo(grayImageFloating,CvType.CV_32F);
 							if (absDiffImage.empty())
 								absDiffImage = Mat.zeros(image.size(), CvType.CV_32F);
 							if (avgImage.empty())
 								avgImage = Mat.zeros(grayImage.size(), CvType.CV_32F);
-							
+
 							Core.absdiff(grayImageFloating, avgImage, absDiffImage);
-							
+
 							Mat inputFloating=new Mat();
 							grayImage.convertTo(inputFloating, CvType.CV_32F);
 							Imgproc.accumulateWeighted(inputFloating,avgImage, 0.001);
@@ -138,9 +138,9 @@ public class Camera implements IOControl{
 							Mat absInteger=new Mat();
 							absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
 							Imgproc.Canny(absInteger, canny, 100, 300);
-							
-							
-							Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);							
+
+
+							Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 							if (contours.size() > 0) {
 								int numObjects = contours.size();
 
@@ -160,7 +160,7 @@ public class Camera implements IOControl{
 													centroid.y>MIN_Y_BORDER && centroid.y<temp.size().height-MIN_Y_BORDER	)
 											{
 												currenTrackedObjects++;
-												
+
 											}
 											else//some is coming or leaving to the tracked area
 											{
@@ -180,11 +180,15 @@ public class Camera implements IOControl{
 							}
 							else
 							{
-								if(pre)
+								if(previousTrackedObjects>0)
+								{
+									System.out.println("Alert");
+									ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
+								}
 							}
 
 						}
-						
+
 				}
 
 	}
@@ -201,7 +205,7 @@ public class Camera implements IOControl{
 			e.printStackTrace();
 		}
 		}
-		
+
 	}
 	private void writeImage(CameraPanels panelCamera, Mat image) {
 		if(true)
@@ -212,7 +216,7 @@ public class Camera implements IOControl{
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 	private BufferedImage toBuffImage(Mat image) throws IOException {
 		if(image.empty())return null;
@@ -235,7 +239,7 @@ public class Camera implements IOControl{
 		frameCamera.setSize(image.width() + 20, image.height() + 60);
 		frameAvgCamera.setSize(image.width() + 20, image.height() + 60);
 		frameTrackedObjects.setSize(image.width() + 20, image.height() + 60);
-		
+
 
 
 
@@ -257,9 +261,9 @@ public class Camera implements IOControl{
 		case ENABLE_CAMERA:return ReadResponse.success(RESOURCE_ID+id, frameCamera.isVisible());
 
 		case ENABLE_AVG_CAMERA:return ReadResponse.success(RESOURCE_ID+id, frameAvgCamera.isVisible());
-		
+
 		case TRACKED_OBJECTS_CAMERA:return ReadResponse.success(RESOURCE_ID+id, frameTrackedObjects.isVisible());
-		
+
 		case SENSITIVITY:return ReadResponse.success(RESOURCE_ID+id, getSensitivity());
 		}
 		return null;
@@ -271,15 +275,15 @@ public class Camera implements IOControl{
 		case ENABLE_CAMERA:frameCamera.setVisible((boolean) value.getValue());break;
 
 		case ENABLE_AVG_CAMERA:frameAvgCamera.setVisible((boolean) value.getValue());break;
-		
+
 		case TRACKED_OBJECTS_CAMERA:frameTrackedObjects.setVisible((boolean) value.getValue());break;
-		
+
 		case SENSITIVITY:setSensitivity((int)value.getValue());
 		}
 		return WriteResponse.success();
 	}
 	private void setSensitivity(int value) {
-	sensitivity=value;		
+	sensitivity=value;
 	}
 	private int getSensitivity()
 	{
