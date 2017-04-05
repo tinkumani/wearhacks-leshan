@@ -15,6 +15,10 @@
  *******************************************************************************/
 package org.eclipse.leshan.client.demo;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
 import org.eclipse.leshan.client.resource.ResourceChangedListener;
 import org.eclipse.leshan.core.node.LwM2mResource;
@@ -29,14 +33,23 @@ import hub.TrackerHub;
 import hub.TrackerListener;
 
 public class MySecurityHub extends BaseInstanceEnabler implements TrackerListener{
-	 public TrackerHub tracker=null;
-	MySecurityHub() {
-        tracker = new TrackerHub();
-        try {
-			tracker.startTracking();
-			tracker.addTrackerListener(this);
-		} catch (Exception e) {			
-		}
+	private final ScheduledExecutorService scheduler;
+	final TrackerHub tracker= new TrackerHub();
+	MySecurityHub() {		
+		tracker.addTrackerListener(this);
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                  try {
+          			tracker.startTracking();
+          			
+          		} catch (Exception e) {			
+          		}
+            }
+        }, 2, 2, TimeUnit.SECONDS);
+		
     }
 
 	@Override

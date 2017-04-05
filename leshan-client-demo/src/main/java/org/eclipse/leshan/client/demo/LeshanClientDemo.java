@@ -47,7 +47,7 @@ public class LeshanClientDemo {
 
     //
     private static final int OBJECT_ID_TEMPERATURE_SENSOR = 3303;
-    private static final int OBJECT_ID_SECURITY_CAM = 3304;
+    private static final int OBJECT_ID_SECURITY_CAM = 3300;
     private final static String DEFAULT_ENDPOINT = "LeshanClientDemo";
     private final static String USAGE = "java -jar leshan-client-demo.jar [OPTION]";
 
@@ -224,7 +224,7 @@ public class LeshanClientDemo {
 
         // Create instances of LWM2M objects
         // initializer.setInstancesForObject(LOCATION, locationInstance);
-        // initializer.setInstancesForObject(OBJECT_ID_TEMPERATURE_SENSOR, new RandomTemperatureSensor());
+         //initializer.setInstancesForObject(OBJECT_ID_TEMPERATURE_SENSOR, new RandomTemperatureSensor());
         initializer.setInstancesForObject(OBJECT_ID_SECURITY_CAM, new MySecurityHub());
 
         // Add objects to enabler list

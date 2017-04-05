@@ -18,7 +18,7 @@ public class CameraPanels extends JPanel {
 	{
 		this.image=bufferedImage;
 		repaint();
-		System.out.println("Repainted..."+name);
+		//System.out.println("Repainted..."+name);
 	}
 
 	@Override

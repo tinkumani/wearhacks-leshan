@@ -43,7 +43,6 @@ public class Camera implements IOControl{
 
 	private String video;
 	public Camera(){
-
 	}
 	Camera(String video){
 		this.video=video;
@@ -65,7 +64,7 @@ public class Camera implements IOControl{
 		private final int MAX_NUM_OBJECTS = 50;
 
 		//minimum and maximum object area
-		private final int MIN_OBJECT_AREA = 40 * 40;
+		private final int MIN_OBJECT_AREA = 5 * 5;
        //Ignore the image border
 		private double MIN_X_BORDER=10;
 		private double MIN_Y_BORDER=10;
@@ -137,7 +136,7 @@ public class Camera implements IOControl{
 							Mat canny=new Mat();
 							Mat absInteger=new Mat();
 							absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
-							Imgproc.Canny(absInteger, canny, 100, 300);
+							Imgproc.Canny(absInteger, canny, 100, 200);
 
 
 							Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -170,7 +169,7 @@ public class Camera implements IOControl{
 										}
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
-											System.out.println("Alert");
+											if(ioListener!=null)
 											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
 										}
 										previousTrackedObjects=currenTrackedObjects;
@@ -182,7 +181,7 @@ public class Camera implements IOControl{
 							{
 								if(previousTrackedObjects>0)
 								{
-									System.out.println("Alert");
+									if(ioListener!=null)
 									ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
 								}
 							}
@@ -231,7 +230,7 @@ public class Camera implements IOControl{
 		frame.setSize(640, 480);
 		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 		frame.setContentPane(panel);
-		frame.setVisible(true);
+		//frame.setVisible(true);
 		return frame;
 	}
 
@@ -272,13 +271,13 @@ public class Camera implements IOControl{
 	public WriteResponse writeValue(int id,LwM2mResource value) {
 		switch(id)
 		{
-		case ENABLE_CAMERA:frameCamera.setVisible((boolean) value.getValue());break;
+		case ENABLE_CAMERA:frameCamera.setVisible(new Boolean(value.getValue().toString()));break;
 
-		case ENABLE_AVG_CAMERA:frameAvgCamera.setVisible((boolean) value.getValue());break;
+		case ENABLE_AVG_CAMERA:frameAvgCamera.setVisible(new Boolean(value.getValue().toString()));break;
 
-		case TRACKED_OBJECTS_CAMERA:frameTrackedObjects.setVisible((boolean) value.getValue());break;
+		case TRACKED_OBJECTS_CAMERA:frameTrackedObjects.setVisible(new Boolean(value.getValue().toString()));break;
 
-		case SENSITIVITY:setSensitivity((int)value.getValue());
+		case SENSITIVITY:setSensitivity(new Integer(value.getValue().toString()));
 		}
 		return WriteResponse.success();
 	}

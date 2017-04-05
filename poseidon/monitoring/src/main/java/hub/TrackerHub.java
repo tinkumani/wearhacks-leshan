@@ -32,6 +32,11 @@ public class TrackerHub implements IOListener{
 	public void startTracking() {
 		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 		entry.getValue().addIOListerner(this);
+		try {
+			entry.getValue().startTracking();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		}
 
 	}
@@ -40,11 +45,15 @@ public class TrackerHub implements IOListener{
 
 	}
 	public ReadResponse read(int resourceid) {
-		return inputOutputControls.get(getIId(resourceid)).readValue(getRId(resourceid));
+		 InputControl control=inputOutputControls.get(getIId(resourceid));
+		 if(control==null){inputControls.get(getIId(resourceid));}
+		 return control.readValue(getRId(resourceid));
 	}
 
 	public WriteResponse write(int resourceid, LwM2mResource value) {
-		return outputControls.get(getIId(resourceid)).writeValue(getRId(resourceid),value);
+		OutputControl control=inputOutputControls.get(getIId(resourceid));
+		 if(control==null){outputControls.get(getIId(resourceid));}
+		return control.writeValue(getRId(resourceid),value);
 	}
 	public ExecuteResponse execute(int resourceid, String params) {
 		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {

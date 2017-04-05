@@ -47,4 +47,10 @@ public class FacebookChatControl implements IOControl {
 
 	}
 
+	@Override
+	public void startTracking() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
