@@ -1,5 +1,7 @@
 package org.poseidon.camera;
 
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -56,6 +58,15 @@ public class Camera implements IOControl{
 
 	private String video;
 	public Camera(){
+		//set initial position
+		
+		Rectangle rect = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getBounds();
+	    int x = (int) rect.getMaxX() - frameAvgCamera.getWidth();
+	    int y = 0;
+	    frameAvgCamera.setLocation(x, y);
+	    y=(int) rect.getMaxY() - frameTrackedObjects.getHeight();
+	    frameTrackedObjects.setLocation(0, y);
+	    frameCamera.setLocation(x, y);
 	}
 	Camera(String video){
 		this.video=video;
@@ -71,6 +82,9 @@ public class Camera implements IOControl{
 	//Tracked Objects
 	private CameraPanels trackedObjectsCamera = new CameraPanels("Tracked Camera");
 	private JFrame frameTrackedObjects = createFrame("Tracked Objects", trackedObjectsCamera);
+	
+	
+   
 
 
 	//max number of objects to be detected in frame

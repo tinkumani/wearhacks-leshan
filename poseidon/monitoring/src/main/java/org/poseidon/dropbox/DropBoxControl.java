@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
@@ -33,7 +34,12 @@ public class DropBoxControl implements OutputControl {
 
 	private String ACCESS_TOKEN="DcreSARbviAAAAAAAAAACuo_PCkZEg0K3L-i_V9nygsoiFzRjURaydh0YF_Ly05O";
 	private DbxClientV2 dbxClient=null;
-	private String dropboxPath="/security";
+	private String dropboxPath="/security/";
+	private String defaultImageExtention=".jpg";
+	public DropBoxControl()
+	{
+		initialize();
+	}
 
 	public void initialize()
 	{
@@ -43,10 +49,11 @@ public class DropBoxControl implements OutputControl {
 	}
 public void uploadFile(BufferedImage image)
 {
+	if(image==null)return;
 	 try {
 		 if(ACCESS_TOKEN!=null)
 		 {
-		FileMetadata metadata = dbxClient.files().uploadBuilder(dropboxPath+new Date())
+		FileMetadata metadata = dbxClient.files().uploadBuilder(dropboxPath+new SimpleDateFormat("yyyyMMddHHmmssSSSz.'"+"jpg"+"'").format(new Date()))
 		         .withMode(WriteMode.ADD)
 		         .withClientModified(new Date())
 		         .uploadAndFinish(toByteArrayInputStream(image));
@@ -99,7 +106,7 @@ private void uploadFile(String filename) {
 		switch(resourceid)
 		{
 
-		case DROPBOX_ACCESS_TOKEN:ACCESS_TOKEN=params;
+		case DROPBOX_ACCESS_TOKEN:ACCESS_TOKEN=params;initialize();
 
 		}
 		return ExecuteResponse.success();
@@ -116,7 +123,7 @@ private void uploadFile(String filename) {
 		switch(rId)
 		{
 
-		case DROPBOX_ACCESS_TOKEN:ACCESS_TOKEN=(String)resource.getValue();
+		case DROPBOX_ACCESS_TOKEN:ACCESS_TOKEN=(String)resource.getValue();initialize();
 
 		}
 		return WriteResponse.success();

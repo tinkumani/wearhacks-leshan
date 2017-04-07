@@ -31,10 +31,22 @@ public class TrackerHub implements IOListener{
 
 	}
 	public void startTracking() {
-		for (Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
+		for (final Map.Entry<Integer, IOControl> entry : inputOutputControls.entrySet()) {
 		entry.getValue().addIOListerner(this);
 		try {
-			entry.getValue().startTracking();
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						entry.getValue().startTracking();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+				}
+			}).start();;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
