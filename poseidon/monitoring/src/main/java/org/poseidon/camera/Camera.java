@@ -2,9 +2,14 @@ package org.poseidon.camera;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -27,16 +32,24 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.VideoWriter;
+import org.opencv.videoio.Videoio;
 import org.poseidon.EventDetails;
 import org.poseidon.IOControl;
 import org.poseidon.IOListener;
+import org.poseidon.camera.SecurityCameraEvent.Event;
 
 public class Camera implements IOControl{
 	private static final int ENABLE_CAMERA = 11;
 	private static final int ENABLE_AVG_CAMERA = 12;
 	private static final int TRACKED_OBJECTS_CAMERA = 13;
 	private static final int SENSITIVITY = 14;
+	private static final int RECORD_VIDEO = 15;
+	private static final int CLIP_DURATION=16;
+	
 	public static final int RESOURCE_ID=67;
+	private AtomicBoolean isRecording=new AtomicBoolean(false);
+	private Timer recordingTimer=null;
 	static {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
@@ -72,6 +85,8 @@ public class Camera implements IOControl{
 		private int sensitivity=100;
 
 		private IOListener ioListener;
+		private int clipDuration=60*1000;
+		private AtomicReference<String> currentRecording=null;
 	public void startTracking() throws Exception {
 
 		Mat image = new Mat();
@@ -107,28 +122,42 @@ public class Camera implements IOControl{
 					while (true) {
 
 						capture.read(image);
+						if(isRecording.get())
+						{
+						VideoWriter videoWriter=getVideoWriter(new Size((int)capture.get(Videoio.CAP_PROP_FRAME_WIDTH),
+								(int)capture.get(Videoio.CAP_PROP_FRAME_HEIGHT)),capture.get(Videoio.CAP_PROP_FPS));
+						videoWriter.write(image);
+						}						
 						writeImage(panelCamera,image);
 						if (!image.empty()) {
 
-							//pre-process
-
+							//Pre-process Phase
+                            
+							//Step 1. Convert to Gray Scale
 							Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
+							//Step 2.Blur
 							Imgproc.GaussianBlur(grayImage,grayImage,new Size(21, 21), 0);
-
+							
+							//Converting Formats
 							Mat grayImageFloating=new Mat();
 							grayImage.convertTo(grayImageFloating,CvType.CV_32F);
 							if (absDiffImage.empty())
 								absDiffImage = Mat.zeros(image.size(), CvType.CV_32F);
 							if (avgImage.empty())
 								avgImage = Mat.zeros(grayImage.size(), CvType.CV_32F);
-
+							
+							//Step 3. Diff from Avg Image
 							Core.absdiff(grayImageFloating, avgImage, absDiffImage);
-
+							
+							//Converting Formats
 							Mat inputFloating=new Mat();
 							grayImage.convertTo(inputFloating, CvType.CV_32F);
+							
+							//Step 4. Add the current image to Avg Image
 							Imgproc.accumulateWeighted(inputFloating,avgImage, 0.001);
 							writeImage(panelAvgCamera,avgImage);
-							//process
+							
+							//Process Phase
 							List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 							Mat temp = new Mat();
 							Mat hierarchy = new Mat();
@@ -136,9 +165,9 @@ public class Camera implements IOControl{
 							Mat canny=new Mat();
 							Mat absInteger=new Mat();
 							absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
+							//Step 5 Find Edge
 							Imgproc.Canny(absInteger, canny, 100, 200);
-
-
+                           //Step 6 Find Contour
 							Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 							if (contours.size() > 0) {
 								int numObjects = contours.size();
@@ -161,16 +190,21 @@ public class Camera implements IOControl{
 												currenTrackedObjects++;
 
 											}
-											else//some is coming or leaving to the tracked area
-											{
-
-											}
+									else/*
+										 * Assume that its someone leaving the area
+										 * TODO Need to enhance to
+										 * calculate the vector of the images
+										 * and track
+										 */
+									{
+										previousTrackedObjects--;
+									}
 
 										}
 										if(previousTrackedObjects>currenTrackedObjects)
 										{
 											if(ioListener!=null)
-											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
+											ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage),Event.PERSON_MISSING));
 										}
 										previousTrackedObjects=currenTrackedObjects;
 										currenTrackedObjects=0;
@@ -182,7 +216,7 @@ public class Camera implements IOControl{
 								if(previousTrackedObjects>0)
 								{
 									if(ioListener!=null)
-									ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage)));
+									ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),toBuffImage(previousImage),Event.PERSON_MISSING));
 								}
 							}
 
@@ -193,6 +227,14 @@ public class Camera implements IOControl{
 	}
 	}
 
+	private VideoWriter getVideoWriter(Size frameSize,double fps) throws IOException {
+		String prefix = "recording";
+	    String suffix = ".avi";
+	    File outputFile = File.createTempFile(prefix, suffix);
+	    outputFile.deleteOnExit();
+	    currentRecording=new AtomicReference<String>(outputFile.getAbsolutePath());
+		return new VideoWriter(outputFile.getAbsolutePath(),VideoWriter.fourcc('D','I','V','X'),fps,frameSize,true);
+	}
 	private void processDisplay(MatOfPoint matOfPoint, Mat image) {
 		if(trackedObjectsCamera.isShowing())
 		{
@@ -230,7 +272,6 @@ public class Camera implements IOControl{
 		frame.setSize(640, 480);
 		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 		frame.setContentPane(panel);
-		//frame.setVisible(true);
 		return frame;
 	}
 
@@ -264,6 +305,10 @@ public class Camera implements IOControl{
 		case TRACKED_OBJECTS_CAMERA:return ReadResponse.success(RESOURCE_ID+id, frameTrackedObjects.isVisible());
 
 		case SENSITIVITY:return ReadResponse.success(RESOURCE_ID+id, getSensitivity());
+		
+		case RECORD_VIDEO:return ReadResponse.success(RESOURCE_ID+id,isRecording.get());
+		
+		case CLIP_DURATION:return ReadResponse.success(RESOURCE_ID+id,this.clipDuration);
 		}
 		return null;
 	}
@@ -277,12 +322,80 @@ public class Camera implements IOControl{
 
 		case TRACKED_OBJECTS_CAMERA:frameTrackedObjects.setVisible(new Boolean(value.getValue().toString()));break;
 
-		case SENSITIVITY:setSensitivity(new Integer(value.getValue().toString()));
+		case SENSITIVITY:setSensitivity(new Integer(value.getValue().toString()));break;
+		
+		case RECORD_VIDEO:recordClip(new Boolean(value.getValue().toString()));break;
+		
+		case CLIP_DURATION:setClipDuration(new Integer(value.getValue().toString()));
 		}
 		return WriteResponse.success();
 	}
+
+	@Override
+	public ExecuteResponse execute(int id, String value) {
+		switch (id) {
+		case ENABLE_CAMERA:
+			frameCamera.setVisible(new Boolean(value));
+			break;
+
+		case ENABLE_AVG_CAMERA:
+			frameAvgCamera.setVisible(new Boolean(value));
+			break;
+
+		case TRACKED_OBJECTS_CAMERA:
+			frameTrackedObjects.setVisible(new Boolean(value));
+			break;
+
+		case SENSITIVITY:
+			setSensitivity(new Integer(value));
+			break;
+		case RECORD_VIDEO:
+			recordClip(new Boolean(value));
+			break;
+
+		case CLIP_DURATION:
+			setClipDuration(new Integer(value));
+		}
+		return ExecuteResponse.success();
+	}
+
+	private void setClipDuration(Integer duration) {
+		
+		if(duration>30)this.clipDuration=duration*1000;
+	}
+
+	private synchronized void recordClip(boolean start) {
+		if (start) {
+			if (!isRecording.get()) {
+				isRecording.set(true);
+				recordingTimer = new Timer();
+				recordingTimer.schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						recordClip(false);
+
+					}
+				}, clipDuration);
+
+			}
+		} else {
+			ioListener.eventOccured(RESOURCE_ID,
+					new SecurityCameraEvent(getCurrentRecording(), SecurityCameraEvent.Event.VIDEO_CLIP));
+			isRecording.set(false);
+		}
+
+	}
+
+	
+	private String getCurrentRecording() {
+		return currentRecording.get();
+	}
 	private void setSensitivity(int value) {
 	sensitivity=value;
+	panelCamera.setSensitivity(value);
+	panelAvgCamera.setSensitivity(value);
+	trackedObjectsCamera.setSensitivity(value);
 	}
 	private int getSensitivity()
 	{
@@ -298,11 +411,7 @@ public class Camera implements IOControl{
 		this.ioListener=iolistener;
 
 	}
-	@Override
-	public ExecuteResponse execute(int resourceid, String params) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	@Override
 	public void reset(int resourceid) {
 		// TODO Auto-generated method stub

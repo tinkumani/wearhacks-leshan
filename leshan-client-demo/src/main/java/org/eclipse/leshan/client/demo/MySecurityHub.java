@@ -38,7 +38,7 @@ public class MySecurityHub extends BaseInstanceEnabler implements TrackerListene
 	MySecurityHub() {		
 		tracker.addTrackerListener(this);
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        scheduler.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -48,7 +48,7 @@ public class MySecurityHub extends BaseInstanceEnabler implements TrackerListene
           		} catch (Exception e) {			
           		}
             }
-        }, 2, 2, TimeUnit.SECONDS);
+        });
 		
     }
 

@@ -1,5 +1,7 @@
 package org.poseidon;
 
-public class EventDetails {
+public interface EventDetails {
+	
+	String getType();
 
 }
