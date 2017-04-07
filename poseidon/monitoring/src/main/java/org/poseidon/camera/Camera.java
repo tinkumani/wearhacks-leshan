@@ -99,7 +99,7 @@ public class Camera implements IOControl{
 		private int sensitivity=100;
 
 		private IOListener ioListener;
-		private int clipDuration=60*1000;
+		private int clipDuration=10*1000;
 		private AtomicReference<String> currentRecording=null;
 	public void startTracking() throws Exception {
 

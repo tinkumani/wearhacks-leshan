@@ -66,7 +66,7 @@ private void uploadFile(String filename) {
 	try {
 		 if(ACCESS_TOKEN!=null)
 		 {
-		FileMetadata metadata = dbxClient.files().uploadBuilder(dropboxPath+new Date())
+		FileMetadata metadata = dbxClient.files().uploadBuilder(dropboxPath+new SimpleDateFormat("yyyyMMddHHmmssSSSz.'"+"avi"+"'").format(new Date()))
 		         .withMode(WriteMode.ADD)
 		         .withClientModified(new Date())
 		         .uploadAndFinish(new FileInputStream(new File(filename)));
