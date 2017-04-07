@@ -191,6 +191,7 @@ public class Camera implements IOControl{
 									for (int i=0; i< contours.size(); i++){
 										processDisplay(contours.get(i),image);
 										Moments moment = Imgproc.moments(contours.get(i));
+										//Step 7. Calculate Area of each Contour
 										double area = moment.get_m00();
 
 										//small objects,just noise
