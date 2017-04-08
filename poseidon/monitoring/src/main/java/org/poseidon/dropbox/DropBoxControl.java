@@ -62,14 +62,14 @@ public void uploadFile(BufferedImage image)
 		e.printStackTrace();
 	}
 }
-private void uploadFile(String filename) {
+private void uploadFile(File filename) {
 	try {
 		 if(ACCESS_TOKEN!=null)
 		 {
 		FileMetadata metadata = dbxClient.files().uploadBuilder(dropboxPath+new SimpleDateFormat("yyyyMMddHHmmssSSSz.'"+"avi"+"'").format(new Date()))
 		         .withMode(WriteMode.ADD)
 		         .withClientModified(new Date())
-		         .uploadAndFinish(new FileInputStream(new File(filename)));
+		         .uploadAndFinish(new FileInputStream(filename));
 		 }
 	} catch (DbxException | IOException e) {
 		e.printStackTrace();
@@ -95,8 +95,10 @@ private void uploadFile(String filename) {
 			if (cameraEvent.getEvent() == SecurityCameraEvent.Event.VIDEO_CLIP) {
 				uploadFile(cameraEvent.getFilename());
 			} else if (cameraEvent.getEvent() == SecurityCameraEvent.Event.PERSON_MISSING)
-				uploadFile(((SecurityCameraEvent) eventDetails).getPreviousImage());
+			{
+			uploadFile(((SecurityCameraEvent) eventDetails).getPreviousImage());
 			uploadFile(((SecurityCameraEvent) eventDetails).getCurrentImage());
+			}
 			break;
 		}
 

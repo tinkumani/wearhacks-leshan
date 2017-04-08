@@ -1,6 +1,7 @@
 package org.poseidon.camera;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import org.poseidon.EventDetails;
 
@@ -12,14 +13,14 @@ public class SecurityCameraEvent implements EventDetails {
 	private BufferedImage currentImage;
 	private BufferedImage previousImage;
 	public Event event;
-	private String filename;
+	private File filename;
 
 	public SecurityCameraEvent(BufferedImage buffImage, BufferedImage buffImage2,Event event) {
 		this.previousImage=buffImage;
 		this.currentImage=buffImage2;
 		this.event=event;
 	}
-	public SecurityCameraEvent(String filename,Event event) {
+	public SecurityCameraEvent(File filename,Event event) {
 		this.filename=filename;
 		this.event=event;
 	}
@@ -42,12 +43,13 @@ public class SecurityCameraEvent implements EventDetails {
 	public void setEvent(Event event) {
 		this.event = event;
 	}
-	public String getFilename() {
+	public File getFilename() {
 		return filename;
 	}
-	public void setFilename(String filename) {
+	public void setFilename(File filename) {
 		this.filename = filename;
 	}
+	
 	
 
 }
