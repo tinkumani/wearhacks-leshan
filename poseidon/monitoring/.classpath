@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
-  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-  <classpathentry kind="var" path="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6.jar" sourcepath="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/nu/pattern/opencv/3.2.0-1.3/opencv-3.2.0-1.3.jar"/>
-  <classpathentry kind="src" path="/leshan-core"/>
-  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/dropbox/core/dropbox-core-sdk/3.0.1/dropbox-core-sdk-3.0.1.jar" sourcepath="M2_REPO/com/dropbox/core/dropbox-core-sdk/3.0.1/dropbox-core-sdk-3.0.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.jar" sourcepath="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/restfb/restfb/2.0.0-rc.2/restfb-2.0.0-rc.2.jar" sourcepath="M2_REPO/com/restfb/restfb/2.0.0-rc.2/restfb-2.0.0-rc.2-sources.jar"/>
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="var" path="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6.jar" sourcepath="M2_REPO/com/beust/jcommander/1.6/jcommander-1.6-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/nu/pattern/opencv/3.2.0-1.3/opencv-3.2.0-1.3.jar"/>
+	<classpathentry kind="src" path="/leshan-core"/>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/dropbox/core/dropbox-core-sdk/3.0.1/dropbox-core-sdk-3.0.1.jar" sourcepath="M2_REPO/com/dropbox/core/dropbox-core-sdk/3.0.1/dropbox-core-sdk-3.0.1-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.jar" sourcepath="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/restfb/restfb/2.0.0-rc.2/restfb-2.0.0-rc.2.jar" sourcepath="M2_REPO/com/restfb/restfb/2.0.0-rc.2/restfb-2.0.0-rc.2-sources.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

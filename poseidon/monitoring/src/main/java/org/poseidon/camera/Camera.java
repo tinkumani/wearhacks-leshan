@@ -1,19 +1,24 @@
 package org.poseidon.camera;
 
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -41,7 +46,7 @@ import org.poseidon.IOControl;
 import org.poseidon.IOListener;
 import org.poseidon.camera.SecurityCameraEvent.Event;
 
-public class Camera implements IOControl {
+public class Camera implements IOControl,ActionListener {
 	private static final int ENABLE_CAMERA = 11;
 	private static final int ENABLE_AVG_CAMERA = 12;
 	private static final int TRACKED_OBJECTS_CAMERA = 13;
@@ -61,16 +66,7 @@ public class Camera implements IOControl {
 	private String video;
 
 	public Camera() {
-		// set initial position
-
-		Rectangle rect = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-				.getDefaultConfiguration().getBounds();
-		int x = (int) rect.getMaxX() - frameAvgCamera.getWidth();
-		int y = 0;
-		frameAvgCamera.setLocation(x, y);
-		y = (int) rect.getMaxY() - frameTrackedObjects.getHeight();
-		frameTrackedObjects.setLocation(0, y);
-		frameCamera.setLocation(x, y);
+	
 	}
 
 	Camera(String video) {
@@ -80,18 +76,17 @@ public class Camera implements IOControl {
 	private enum Status {
 		MOTION_SENSOR, DROWNING_SENSOR
 	}
+	
+	private enum Cameras{
+		LIVE_CAM,GRAY_CAM,BLUR_CAM,DIFF_CAM,ACCUMULATED_IMAGE_CAM,EDGE_CAM,CONTOUR_CAM,SETTINGS
+	}
 
 	private Status status = Status.DROWNING_SENSOR;
-	// RawImage
-	private CameraPanels panelCamera = new CameraPanels("Camera");
+	// Cameras
+	private CameraPanels panelCamera = new CameraPanels("Camera's",
+			Stream.of(Cameras.values()).map(Cameras::name).collect(Collectors.toList()), this);
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
-	// Avg Image
-	private CameraPanels panelAvgCamera = new CameraPanels("Average Camera");
-	private JFrame frameAvgCamera = createFrame("AverageImage", panelAvgCamera);
-	// Tracked Objects
-	private CameraPanels trackedObjectsCamera = new CameraPanels("Tracked Camera");
-	private JFrame frameTrackedObjects = createFrame("Tracked Objects", trackedObjectsCamera);
-
+	
 	// max number of objects to be detected in frame
 	private final int MAX_NUM_OBJECTS = 50;
 
@@ -150,15 +145,17 @@ public class Camera implements IOControl {
 							capture.get(Videoio.CAP_PROP_FPS));
 					videoWriter.write(image);
 				}
-				writeImage(panelCamera, image);
+				writeImage(Cameras.LIVE_CAM, image);
 				if (!image.empty()) {
 
 					// Pre-process Phase
 
 					// Step 1. Convert to Gray Scale
 					Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
+					writeImage(Cameras.GRAY_CAM, grayImage);
 					// Step 2.Blur
 					Imgproc.GaussianBlur(grayImage, grayImage, new Size(21, 21), 0);
+					writeImage(Cameras.BLUR_CAM, grayImage);
 
 					// Converting Formats
 					Mat grayImageFloating = new Mat();
@@ -170,6 +167,7 @@ public class Camera implements IOControl {
 
 					// Step 3. Diff from Avg Image
 					Core.absdiff(grayImageFloating, avgImage, absDiffImage);
+					writeImage(Cameras.DIFF_CAM, absDiffImage);
 
 					// Converting Formats
 					Mat inputFloating = new Mat(); 
@@ -177,7 +175,7 @@ public class Camera implements IOControl {
 
 					// Step 4. Add the current image to Avg Image
 					Imgproc.accumulateWeighted(inputFloating, avgImage, 0.001);
-					writeImage(panelAvgCamera, avgImage);
+					writeImage(Cameras.ACCUMULATED_IMAGE_CAM, avgImage);
 
 					// Process Phase
 					List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -189,9 +187,11 @@ public class Camera implements IOControl {
 					absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
 					// Step 5 Find Edge
 					Imgproc.Canny(absInteger, canny, 100, 200);
+					writeImage(Cameras.EDGE_CAM, canny);
 					// Step 6 Find Contour
 					Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL,
 							Imgproc.CHAIN_APPROX_SIMPLE);
+					writeImage(Cameras.CONTOUR_CAM, canny);
 					if (contours.size() > 0) {
 						int numObjects = contours.size();
 
@@ -267,31 +267,23 @@ public class Camera implements IOControl {
 		return videoWriter;
 	}
 
-	private void processDisplay(MatOfPoint matOfPoint, Mat image) {
-		if (trackedObjectsCamera.isShowing()) {
+	private Mat processDisplay(MatOfPoint matOfPoint, Mat image) {
 			Rect rect = Imgproc.boundingRect(matOfPoint);
 			Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.height),
 					new Scalar(0, 255, 0), 2);
-			try {
-				trackedObjectsCamera.setImage(toBuffImage(image));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+			return image;
+		
 
 	}
 
-	private void writeImage(CameraPanels panelCamera, Mat image) {
-		if (true) {
-			try {
-				if(image!=null && panelCamera!=null)
+	private void writeImage(Cameras cam, Mat image) {
+		
+				if(image!=null && cam!=null)
 				{
-				panelCamera.drawRect((int)MIN_X_BORDER,(int) MIN_Y_BORDER,(int) (image.width()-MIN_X_BORDER),(int)(image.height()-MIN_Y_BORDER));
-				panelCamera.setImage(toBuffImage(image));
+				
+				cam.setImage(toBuffImage(image));
 				}
-			} catch (IOException|NullPointerException e) {
-				e.printStackTrace();
-			}
+			
 		}
 
 	}
@@ -317,10 +309,7 @@ public class Camera implements IOControl {
 
 	private void setFramesSizes(Mat image) {
 		frameCamera.setSize(image.width() + 20, image.height() + 60);
-		frameAvgCamera.setSize(image.width() + 20, image.height() + 60);
-		frameTrackedObjects.setSize(image.width() + 20, image.height() + 60);
-
-	}
+			}
 
 	public static void main(String[] args) throws Exception {
 		Camera tracker = new Camera();
@@ -473,5 +462,31 @@ public class Camera implements IOControl {
 	public void reset(int resourceid) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		 JComboBox combo = (JComboBox)e.getSource();
+         String currentPanel = (String)combo.getSelectedItem();
+         Map<String,Integer> sliderlist=new HashMap<String,Integer>();
+         switch (currentPanel) {
+		case  Cameras.BLUR_CAM.name():			
+			sliderlist.put("KsizeA", 100);
+	    	sliderlist.put("KsizeB", 100);
+		    sliderlist.put("SigmaX", 100);			
+			break;
+		case  Cameras.ACCUMULATED_IMAGE_CAM.name():
+			sliderlist.put("Alpha", 1);
+		  break;
+		case  Cameras.EDGE_CAM.name():
+			sliderlist.put("Threshold1", 200);
+		    sliderlist.put("Threshold1", 400);
+		  break;
+		default:
+			break;
+		}
+         panelCamera.setSliders(sliderlist.entrySet());
+        
+		
 	}
 }
