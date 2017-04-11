@@ -31,11 +31,11 @@ public class LedControl implements IOControl{
 
 
 	private JFrame jframe=new JFrame("Led Simulator");
-	private JPanel jpanel=new LedGUI();
+	private LedGUI jpanel=new LedGUI();
 	private Timer panicTimer=null;
 	private AtomicBoolean panic=new AtomicBoolean(false);
-	private Timer blinkTimer=new Timer();
-	private long alertDelay;
+	
+	private long alertDelay=10000;
 	public LedControl() {
 		
 
@@ -49,18 +49,25 @@ public class LedControl implements IOControl{
 		  if(this.panic.get()==true)
 		  {
 			  panicTimer.cancel();
-			  lightState=3;
+			  jpanel.setLightState(3);
+			  ioListener.eventOccured(0, new EventDetails() {
+					
+					@Override
+					public String getType() {
+						return "ALARM_CANCELLED";
+					}
+				});
 		  }
 	  }
 	  else
 	  {
-		  lightState=2;
+		jpanel.setLightState(2);
 		panicTimer=new Timer();
 		panicTimer.schedule(new TimerTask() {
 			
 			@Override
 			public void run() {
-				lightState=1;
+				jpanel.setLightState(1);
 				ioListener.eventOccured(0, new EventDetails() {
 					
 					@Override
@@ -94,27 +101,10 @@ public class LedControl implements IOControl{
 		return true;
 			}
 
-		/** Variable to store the current state of the traffic light.
-		 * @ lightState = 1 (Red)
-		 * @ lightState = 2 (Yellow)
-		 * @ lightState = 3 (Green)
-		 */
-		private int lightState = 1;
-		
-		private int tempLightState = 0;
+	
 		private IOListener ioListener;
 
-		/**
-		 * This method repaints the light status
-		 */
-		public void changeColor() {
-			lightState++;
 
-			if (lightState > 3) {
-				lightState = 1;
-			}
-			jpanel.repaint();
-		}
 
 		
 	@Override
@@ -181,27 +171,39 @@ public class LedControl implements IOControl{
 	@Override
 	public void startTracking() throws Exception {
 
-		launch();
+	launch();
+		
+	}
+
+class LedGUI extends JPanel{
+	private Timer blinkTimer=new Timer();
+	public LedGUI() {
 		lightState=3;
 		blinkTimer.scheduleAtFixedRate(new TimerTask() {
 			
 			@Override
 			public void run() {
-				if(lightState==0){
-					lightState=tempLightState;}
-				else
-				{
-					tempLightState=lightState;
-					lightState=0;
-				}
+				blink=!blink;
 				jpanel.repaint();
 				
 			}
 		},0l,1000);
-		
+	}
+	
+	int lightState=3;
+	boolean blink=false;
+	
+	
+	public synchronized int getLightState() {
+		return lightState;
 	}
 
-class LedGUI extends JPanel{
+
+	public synchronized void setLightState(int lightState) {
+		this.lightState = lightState;
+	}
+
+
 	/**
 	 * This method draws the led light on the screen
 	 */
@@ -225,8 +227,8 @@ class LedGUI extends JPanel{
 		// GREEN bulb dim
 		g.setColor(new Color(0,100,0));
 		g.fillOval(70,160,50,50);
-
-		switch(lightState) {
+        if(blink)return;
+		switch(getLightState()) {
 		case 1:
 			// RED bulb glows
 			g.setColor(new Color(255,0,0));

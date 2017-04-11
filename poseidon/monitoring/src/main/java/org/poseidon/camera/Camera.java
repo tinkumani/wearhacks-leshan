@@ -96,7 +96,7 @@ public class Camera implements IOControl {
 	private final int MAX_NUM_OBJECTS = 50;
 
 	// minimum and maximum object area
-	private final int MIN_OBJECT_AREA = 5 * 5;
+	private final int MIN_OBJECT_AREA = 5 * 3;
 	// Ignore the image border
 	private double MIN_X_BORDER = 10;
 	private double MIN_Y_BORDER = 10;
@@ -106,6 +106,7 @@ public class Camera implements IOControl {
 	private IOListener ioListener;
 	private int clipDuration = 10 * 1000;
 	private AtomicReference<File> currentRecording = new AtomicReference<File>(null);
+	private boolean previouslytracked;
 
 	public void startTracking() throws Exception {
 
@@ -171,7 +172,7 @@ public class Camera implements IOControl {
 					Core.absdiff(grayImageFloating, avgImage, absDiffImage);
 
 					// Converting Formats
-					Mat inputFloating = new Mat();
+					Mat inputFloating = new Mat(); 
 					grayImage.convertTo(inputFloating, CvType.CV_32F);
 
 					// Step 4. Add the current image to Avg Image
@@ -197,6 +198,7 @@ public class Camera implements IOControl {
 						// large number of objects, we have a noisy filter
 						if (numObjects < MAX_NUM_OBJECTS) {
 							for (int i = 0; i < contours.size(); i++) {
+								System.out.println(contours.size());
 								processDisplay(contours.get(i), image);
 								Moments moment = Imgproc.moments(contours.get(i));
 								// Step 7. Calculate Area of each Contour
@@ -219,7 +221,7 @@ public class Camera implements IOControl {
 											 * images and track
 											 */
 									{
-										previousTrackedObjects--;
+										
 									}
 
 								}
@@ -227,13 +229,15 @@ public class Camera implements IOControl {
 									if (ioListener != null)
 										ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),
 												toBuffImage(previousImage), Event.PERSON_MISSING));
-								}
+								}								
 								previousTrackedObjects = currenTrackedObjects;
 								currenTrackedObjects = 0;
 							}
 						}
 					} else {
+						//System.out.println("missing "+previousTrackedObjects);
 						if (previousTrackedObjects > 0) {
+							
 							if (ioListener != null)
 								ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),
 										toBuffImage(previousImage), Event.PERSON_MISSING));
@@ -307,6 +311,7 @@ public class Camera implements IOControl {
 		frame.setSize(640, 480);
 		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 		frame.setContentPane(panel);
+		frame.setVisible(true);
 		return frame;
 	}
 

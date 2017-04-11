@@ -7,6 +7,8 @@ import org.eclipse.leshan.core.response.WriteResponse;
 import org.poseidon.EventDetails;
 import org.poseidon.IOControl;
 import org.poseidon.IOListener;
+import org.poseidon.camera.Camera;
+import org.poseidon.camera.SecurityCameraEvent;
 
 public class FacebookChatControl implements IOControl {
 	public static int RESOURCE_ID=68;
@@ -19,7 +21,20 @@ public class FacebookChatControl implements IOControl {
 
 	@Override
 	public void eventReceived(int resourceId, EventDetails eventDetails) {
-		// TODO Auto-generated method stub
+		switch (resourceId) {
+		case 0:break;
+		case Camera.RESOURCE_ID:
+			SecurityCameraEvent cameraEvent = (SecurityCameraEvent) eventDetails;
+			if (cameraEvent.getEvent() == SecurityCameraEvent.Event.VIDEO_CLIP) {
+				//uploadFile(cameraEvent.getFilename());
+			} else if (cameraEvent.getEvent() == SecurityCameraEvent.Event.PERSON_MISSING)
+			{
+			//uploadFile(((SecurityCameraEvent) eventDetails).getPreviousImage());
+			//uploadFile(((SecurityCameraEvent) eventDetails).getCurrentImage());
+			}
+			break;
+		
+		}
 
 	}
 
