@@ -21,6 +21,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
@@ -46,13 +49,19 @@ import org.poseidon.IOControl;
 import org.poseidon.IOListener;
 import org.poseidon.camera.SecurityCameraEvent.Event;
 
-public class Camera implements IOControl,ActionListener {
+public class Camera implements IOControl, ActionListener, ChangeListener {
 	private static final int ENABLE_CAMERA = 11;
-	private static final int ENABLE_AVG_CAMERA = 12;
+	private static final int ACCUMULATED_IMAGE_CAM = 12;
 	private static final int TRACKED_OBJECTS_CAMERA = 13;
-	private static final int SENSITIVITY = 14;
+	private static final int GRAY_CAM = 14;
 	private static final int RECORD_VIDEO = 15;
 	private static final int CLIP_DURATION = 16;
+	private static final int BLUR_CAM = 17;
+	private static final int DIFF_CAM = 18;
+	private static final int EDGE_CAM = 19;
+	private static final int CONTOUR_CAM = 20;
+	private static final int SETTINGS = 21;
+	private static final int TRACK_CAM = 22;
 
 	public static final int RESOURCE_ID = 67;
 	private AtomicBoolean isRecording = new AtomicBoolean(false);
@@ -66,7 +75,7 @@ public class Camera implements IOControl,ActionListener {
 	private String video;
 
 	public Camera() {
-	
+
 	}
 
 	Camera(String video) {
@@ -76,32 +85,32 @@ public class Camera implements IOControl,ActionListener {
 	private enum Status {
 		MOTION_SENSOR, DROWNING_SENSOR
 	}
-	
-	private enum Cameras{
-		LIVE_CAM,GRAY_CAM,BLUR_CAM,DIFF_CAM,ACCUMULATED_IMAGE_CAM,EDGE_CAM,CONTOUR_CAM,SETTINGS
+
+	private enum Cameras {
+		LIVE_CAM, GRAY_CAM, BLUR_CAM, DIFF_CAM, ACCUMULATED_IMAGE_CAM, EDGE_CAM, CONTOUR_CAM, SETTINGS, TRACK_CAM
 	}
 
 	private Status status = Status.DROWNING_SENSOR;
 	// Cameras
 	private CameraPanels panelCamera = new CameraPanels("Camera's",
-			Stream.of(Cameras.values()).map(Cameras::name).collect(Collectors.toList()), this);
+			Stream.of(Cameras.values()).map(Cameras::name).collect(Collectors.toList()), this, this);
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
-	
-	// max number of objects to be detected in frame
-	private final int MAX_NUM_OBJECTS = 50;
-
-	// minimum and maximum object area
-	private final int MIN_OBJECT_AREA = 5 * 3;
-	// Ignore the image border
-	private double MIN_X_BORDER = 10;
-	private double MIN_Y_BORDER = 10;
-
-	private int sensitivity = 100;
-
 	private IOListener ioListener;
 	private int clipDuration = 10 * 1000;
 	private AtomicReference<File> currentRecording = new AtomicReference<File>(null);
 	private boolean previouslytracked;
+	private int KsizeA = 21;
+	private int KsizeB = 21;
+	private int SigmaX = 0;
+	private int Alpha = 1;
+	private int Threshold1 = 100;
+	private int Threshold2 = 200;
+	private int MaxObjectsToTrack = 50;
+	private int MinObjectArea = 15;
+	private int MinX = 10;
+	private int MinY = 10;
+
+	private String currentCamera = "LIVE_CAM";
 
 	public void startTracking() throws Exception {
 
@@ -154,7 +163,7 @@ public class Camera implements IOControl,ActionListener {
 					Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
 					writeImage(Cameras.GRAY_CAM, grayImage);
 					// Step 2.Blur
-					Imgproc.GaussianBlur(grayImage, grayImage, new Size(21, 21), 0);
+					Imgproc.GaussianBlur(grayImage, grayImage, new Size(KsizeA, KsizeB), SigmaX);
 					writeImage(Cameras.BLUR_CAM, grayImage);
 
 					// Converting Formats
@@ -170,11 +179,11 @@ public class Camera implements IOControl,ActionListener {
 					writeImage(Cameras.DIFF_CAM, absDiffImage);
 
 					// Converting Formats
-					Mat inputFloating = new Mat(); 
+					Mat inputFloating = new Mat();
 					grayImage.convertTo(inputFloating, CvType.CV_32F);
 
 					// Step 4. Add the current image to Avg Image
-					Imgproc.accumulateWeighted(inputFloating, avgImage, 0.001);
+					Imgproc.accumulateWeighted(inputFloating, avgImage, Alpha / 100);
 					writeImage(Cameras.ACCUMULATED_IMAGE_CAM, avgImage);
 
 					// Process Phase
@@ -186,7 +195,7 @@ public class Camera implements IOControl,ActionListener {
 					Mat absInteger = new Mat();
 					absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
 					// Step 5 Find Edge
-					Imgproc.Canny(absInteger, canny, 100, 200);
+					Imgproc.Canny(absInteger, canny, Threshold1, Threshold2);
 					writeImage(Cameras.EDGE_CAM, canny);
 					// Step 6 Find Contour
 					Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL,
@@ -196,22 +205,21 @@ public class Camera implements IOControl,ActionListener {
 						int numObjects = contours.size();
 
 						// large number of objects, we have a noisy filter
-						if (numObjects < MAX_NUM_OBJECTS) {
+						if (numObjects < MaxObjectsToTrack) {
 							for (int i = 0; i < contours.size(); i++) {
 								System.out.println(contours.size());
-								processDisplay(contours.get(i), image);
+								writeImage(Cameras.TRACK_CAM, processDisplay(contours.get(i), image));
 								Moments moment = Imgproc.moments(contours.get(i));
 								// Step 7. Calculate Area of each Contour
 								double area = moment.get_m00();
 
 								// small objects,just noise
-								if (area > MIN_OBJECT_AREA) {
+								if (area > MinObjectArea) {
 									Point centroid = new Point();
 									centroid.x = moment.get_m10() / moment.get_m00();
 									centroid.y = moment.get_m01() / moment.get_m00();
-									if (centroid.x > MIN_X_BORDER && centroid.x < temp.size().width - MIN_X_BORDER
-											&& centroid.y > MIN_Y_BORDER
-											&& centroid.y < temp.size().height - MIN_Y_BORDER) {
+									if (centroid.x > MinX && centroid.x < temp.size().width - MinX && centroid.y > MinY
+											&& centroid.y < temp.size().height - MinY) {
 										currenTrackedObjects++;
 
 									} else/*
@@ -221,7 +229,7 @@ public class Camera implements IOControl,ActionListener {
 											 * images and track
 											 */
 									{
-										
+
 									}
 
 								}
@@ -229,15 +237,16 @@ public class Camera implements IOControl,ActionListener {
 									if (ioListener != null)
 										ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),
 												toBuffImage(previousImage), Event.PERSON_MISSING));
-								}								
+								}
 								previousTrackedObjects = currenTrackedObjects;
 								currenTrackedObjects = 0;
 							}
 						}
 					} else {
-						//System.out.println("missing "+previousTrackedObjects);
+						// System.out.println("missing
+						// "+previousTrackedObjects);
 						if (previousTrackedObjects > 0) {
-							
+
 							if (ioListener != null)
 								ioListener.eventOccured(RESOURCE_ID, new SecurityCameraEvent(toBuffImage(image),
 										toBuffImage(previousImage), Event.PERSON_MISSING));
@@ -254,36 +263,38 @@ public class Camera implements IOControl,ActionListener {
 	private synchronized VideoWriter getCurrentVideoWriter(Size frameSize, double fps) throws IOException {
 		String prefix = "recording";
 		String suffix = ".avi";
-		if(currentRecording.get()==null && isRecording.get())
-		{
-		File outputFile = File.createTempFile(prefix, suffix);
-		outputFile.deleteOnExit();
-		currentRecording = new AtomicReference<File>(outputFile);
-		videoWriter=new VideoWriter(currentRecording.get().getAbsolutePath(), VideoWriter.fourcc('D', 'I', 'V', 'X'), fps, frameSize,
-				true);
+		if (currentRecording.get() == null && isRecording.get()) {
+			File outputFile = File.createTempFile(prefix, suffix);
+			outputFile.deleteOnExit();
+			currentRecording = new AtomicReference<File>(outputFile);
+			videoWriter = new VideoWriter(currentRecording.get().getAbsolutePath(),
+					VideoWriter.fourcc('D', 'I', 'V', 'X'), fps, frameSize, true);
 		}
-		
-		
+
 		return videoWriter;
 	}
 
 	private Mat processDisplay(MatOfPoint matOfPoint, Mat image) {
-			Rect rect = Imgproc.boundingRect(matOfPoint);
-			Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.height),
-					new Scalar(0, 255, 0), 2);
-			return image;
-		
+		Rect rect = Imgproc.boundingRect(matOfPoint);
+		Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.height),
+				new Scalar(0, 255, 0), 2);
+		return image;
 
 	}
 
 	private void writeImage(Cameras cam, Mat image) {
-		
-				if(image!=null && cam!=null)
-				{
-				
-				cam.setImage(toBuffImage(image));
-				}
-			
+
+		if (image != null && cam != null) {
+
+			if (currentCamera == null || !currentCamera.equals(cam.name())) {
+				return;
+			}
+			try {
+				panelCamera.setImage(toBuffImage(image));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -293,7 +304,7 @@ public class Camera implements IOControl,ActionListener {
 			return null;
 		MatOfByte bytemat = new MatOfByte();
 		Imgcodecs.imencode(".jpg", image, bytemat);
-		byte[] bytes = bytemat.toArray();		
+		byte[] bytes = bytemat.toArray();
 		return ImageIO.read(new ByteArrayInputStream(bytes));
 	}
 
@@ -309,7 +320,7 @@ public class Camera implements IOControl,ActionListener {
 
 	private void setFramesSizes(Mat image) {
 		frameCamera.setSize(image.width() + 20, image.height() + 60);
-			}
+	}
 
 	public static void main(String[] args) throws Exception {
 		Camera tracker = new Camera();
@@ -324,17 +335,27 @@ public class Camera implements IOControl,ActionListener {
 	public ReadResponse readValue(int id) {
 		switch (id) {
 		case ENABLE_CAMERA:
-			return ReadResponse.success(RESOURCE_ID + id, frameCamera.isVisible());
+			isCurrentCamera(Cameras.LIVE_CAM.name());
+			break;
 
-		case ENABLE_AVG_CAMERA:
-			return ReadResponse.success(RESOURCE_ID + id, frameAvgCamera.isVisible());
-
+		case ACCUMULATED_IMAGE_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.ACCUMULATED_IMAGE_CAM.name()));
 		case TRACKED_OBJECTS_CAMERA:
-			return ReadResponse.success(RESOURCE_ID + id, frameTrackedObjects.isVisible());
-
-		case SENSITIVITY:
-			return ReadResponse.success(RESOURCE_ID + id, getSensitivity());
-
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.TRACK_CAM.name()));
+		case GRAY_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.GRAY_CAM.name()));
+		case BLUR_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.BLUR_CAM.name()));
+		case DIFF_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.DIFF_CAM.name()));
+		case EDGE_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.EDGE_CAM.name()));
+		case CONTOUR_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.CONTOUR_CAM.name()));
+		case SETTINGS:
+			return ReadResponse.success(RESOURCE_ID + id ,isCurrentCamera(Cameras.SETTINGS.name()));
+		case TRACK_CAM:
+			return ReadResponse.success(RESOURCE_ID + id,isCurrentCamera(Cameras.TRACK_CAM.name()));
 		case RECORD_VIDEO:
 			return ReadResponse.success(RESOURCE_ID + id, isRecording.get());
 
@@ -348,21 +369,39 @@ public class Camera implements IOControl,ActionListener {
 	public WriteResponse writeValue(int id, LwM2mResource value) {
 		switch (id) {
 		case ENABLE_CAMERA:
-			frameCamera.setVisible(new Boolean(value.getValue().toString()));
+			setCurrentCamera(Cameras.LIVE_CAM.name());
 			break;
 
-		case ENABLE_AVG_CAMERA:
-			frameAvgCamera.setVisible(new Boolean(value.getValue().toString()));
+		case ACCUMULATED_IMAGE_CAM:
+			setCurrentCamera(Cameras.ACCUMULATED_IMAGE_CAM.name());
 			break;
 
 		case TRACKED_OBJECTS_CAMERA:
-			frameTrackedObjects.setVisible(new Boolean(value.getValue().toString()));
+			setCurrentCamera(Cameras.TRACK_CAM.name());
 			break;
 
-		case SENSITIVITY:
-			setSensitivity(new Integer(value.getValue().toString()));
+		case GRAY_CAM:
+			setCurrentCamera(Cameras.GRAY_CAM.name());
 			break;
-
+			
+		case BLUR_CAM:
+			setCurrentCamera(Cameras.BLUR_CAM.name());
+			break;
+		case DIFF_CAM:
+			setCurrentCamera(Cameras.DIFF_CAM.name());
+			break;
+		case EDGE_CAM:
+			setCurrentCamera(Cameras.EDGE_CAM.name());
+			break;
+		case CONTOUR_CAM:
+			setCurrentCamera(Cameras.CONTOUR_CAM.name());
+			break;
+		case SETTINGS:
+			setCurrentCamera(Cameras.SETTINGS.name());
+			break;
+		case TRACK_CAM:
+			setCurrentCamera(Cameras.TRACK_CAM.name());
+			break;	
 		case RECORD_VIDEO:
 			recordClip(new Boolean(value.getValue().toString()));
 			break;
@@ -376,21 +415,42 @@ public class Camera implements IOControl,ActionListener {
 	@Override
 	public ExecuteResponse execute(int id, String value) {
 		switch (id) {
+
 		case ENABLE_CAMERA:
-			frameCamera.setVisible(new Boolean(value));
+			setCurrentCamera(Cameras.LIVE_CAM.name());
 			break;
 
-		case ENABLE_AVG_CAMERA:
-			frameAvgCamera.setVisible(new Boolean(value));
+		case ACCUMULATED_IMAGE_CAM:
+			setCurrentCamera(Cameras.ACCUMULATED_IMAGE_CAM.name());
 			break;
 
 		case TRACKED_OBJECTS_CAMERA:
-			frameTrackedObjects.setVisible(new Boolean(value));
+			setCurrentCamera(Cameras.TRACK_CAM.name());
 			break;
 
-		case SENSITIVITY:
-			setSensitivity(new Integer(value));
+		case GRAY_CAM:
+			setCurrentCamera(Cameras.GRAY_CAM.name());
 			break;
+
+		case BLUR_CAM:
+			setCurrentCamera(Cameras.BLUR_CAM.name());
+			break;
+		case DIFF_CAM:
+			setCurrentCamera(Cameras.DIFF_CAM.name());
+			break;
+		case EDGE_CAM:
+			setCurrentCamera(Cameras.EDGE_CAM.name());
+			break;
+		case CONTOUR_CAM:
+			setCurrentCamera(Cameras.CONTOUR_CAM.name());
+			break;
+		case SETTINGS:
+			setCurrentCamera(Cameras.SETTINGS.name());
+			break;
+		case TRACK_CAM:
+			setCurrentCamera(Cameras.TRACK_CAM.name());
+			break;
+
 		case RECORD_VIDEO:
 			recordClip(new Boolean(value));
 			break;
@@ -399,6 +459,16 @@ public class Camera implements IOControl,ActionListener {
 			setClipDuration(new Integer(value));
 		}
 		return ExecuteResponse.success();
+	}
+
+	private void setCurrentCamera(String name) {
+		currentCamera = name;
+		panelCamera.getCameraList().setSelectedItem(name);
+
+	}
+	private boolean isCurrentCamera(String name) {
+		return (currentCamera == name);		
+
 	}
 
 	private void setClipDuration(Integer duration) {
@@ -435,17 +505,6 @@ public class Camera implements IOControl,ActionListener {
 		return currentRecording.get();
 	}
 
-	private void setSensitivity(int value) {
-		sensitivity = value;
-		panelCamera.setSensitivity(value);
-		panelAvgCamera.setSensitivity(value);
-		trackedObjectsCamera.setSensitivity(value);
-	}
-
-	private int getSensitivity() {
-		return sensitivity;
-	}
-
 	@Override
 	public void eventReceived(int resourceId, EventDetails eventDetails) {
 		// Not Interested in other events
@@ -466,27 +525,75 @@ public class Camera implements IOControl,ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		 JComboBox combo = (JComboBox)e.getSource();
-         String currentPanel = (String)combo.getSelectedItem();
-         Map<String,Integer> sliderlist=new HashMap<String,Integer>();
-         switch (currentPanel) {
-		case  Cameras.BLUR_CAM.name():			
+		JComboBox combo = (JComboBox) e.getSource();
+		String currentPanel = (String) combo.getSelectedItem();
+		Map<String, Integer> sliderlist = new HashMap<String, Integer>();
+		currentCamera = currentPanel;
+		switch (currentPanel) {
+		case "BLUR_CAM":
 			sliderlist.put("KsizeA", 100);
-	    	sliderlist.put("KsizeB", 100);
-		    sliderlist.put("SigmaX", 100);			
+			sliderlist.put("KsizeB", 100);
+			sliderlist.put("SigmaX", 100);
 			break;
-		case  Cameras.ACCUMULATED_IMAGE_CAM.name():
+		case "ACCUMULATED_IMAGE_CAM":
 			sliderlist.put("Alpha", 1);
-		  break;
-		case  Cameras.EDGE_CAM.name():
+			break;
+		case "EDGE_CAM":
 			sliderlist.put("Threshold1", 200);
-		    sliderlist.put("Threshold1", 400);
-		  break;
+			sliderlist.put("Threshold2", 400);
+			break;
+		case "SETTINGS":
+			sliderlist.put("MaxObjectsToTrack", 50);
+			sliderlist.put("MinObjectArea", 15);
+			sliderlist.put("MinX", 15);
+			sliderlist.put("MinY", 15);
+			break;
 		default:
 			break;
 		}
-         panelCamera.setSliders(sliderlist.entrySet());
-        
-		
+		panelCamera.setSliders(sliderlist.entrySet());
+
+	}
+
+	public void stateChanged(ChangeEvent e) {
+		JSlider source = (JSlider) e.getSource();
+		String name = source.getName();
+		int val = source.getValue();
+		switch (name) {
+		case "KsizeA":
+			KsizeA = val;
+			break;
+		case "KsizeB":
+			KsizeB = val;
+			break;
+		case "SigmaX":
+			SigmaX = val;
+			break;
+		case "Alpha":
+			Alpha = val;
+			break;
+		case "Threshold1":
+			Threshold1 = val;
+			break;
+		case "Threshold2":
+			Threshold2 = val;
+			break;
+		case "MaxObjectsToTrack":
+			MaxObjectsToTrack = val;
+			break;
+		case "MinObjectArea":
+			MinObjectArea = val;
+			break;
+		case "MinX":
+			MinX = val;
+			break;
+		case "MinY":
+			MinY = val;
+			break;
+
+		default:
+			break;
+		}
+
 	}
 }

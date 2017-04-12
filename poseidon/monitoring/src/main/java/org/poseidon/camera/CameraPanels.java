@@ -18,8 +18,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-public class CameraPanels extends JPanel {
+public class CameraPanels extends JPanel{
 
 	private BufferedImage image;
 	private String name;
@@ -29,11 +31,22 @@ public class CameraPanels extends JPanel {
 	private int width_;
 	private int height_;
 	private Map<String, JSlider> sliders = null;
+	private ChangeListener changeListener=null;
+	JComboBox cameraList=null;
 
-	public CameraPanels(String name, List<String> cameras, ActionListener actionListener) {
+	public JComboBox getCameraList() {
+		return cameraList;
+	}
+
+	public void setCameraList(JComboBox cameraList) {
+		this.cameraList = cameraList;
+	}
+
+	public CameraPanels(String name, List<String> cameras, ActionListener actionListener,ChangeListener changeListener) {
 		setLayout(new BorderLayout());
+		this.changeListener=changeListener;
 		this.name = name;
-		JComboBox cameraList = new JComboBox(cameras.toArray(new String[cameras.size()]));
+		cameraList = new JComboBox(cameras.toArray(new String[cameras.size()]));
 		cameraList.addActionListener(actionListener);
 		add(cameraList, BorderLayout.SOUTH);
 	}
@@ -46,15 +59,17 @@ public class CameraPanels extends JPanel {
 			Entry<String, Integer> entry = (Entry<String, Integer>) iterator.next();
 			int maxTick = entry.getValue();
 			JSlider slider = new JSlider();
+			slider.setName(entry.getKey());
 			slider.setMinimum(0);
 			slider.setMaximum(maxTick);
-			slider.setMinorTickSpacing(maxTick > 50 ? 2 : 1);
-			slider.setMajorTickSpacing(maxTick > 50 ? 10 : 5);
+			slider.setMinorTickSpacing(maxTick / 50);
+			slider.setMajorTickSpacing(maxTick /10);
 			Hashtable labels = new Hashtable();
 			labels.put(0, new JLabel(entry.getKey()));
 			slider.setLabelTable(labels);
 			slider.setPaintLabels(true);
 			slider.setEnabled(false);
+			slider.addChangeListener(changeListener);
 			sliderPanel.add(slider);
 			sliders.put(entry.getKey(), slider);
 
@@ -95,5 +110,7 @@ public class CameraPanels extends JPanel {
 		g.setColor(new Color(0, 255, 0));
 		g.drawRect(xpos, ypos, width_, height_);
 	}
+
+	
 
 }
