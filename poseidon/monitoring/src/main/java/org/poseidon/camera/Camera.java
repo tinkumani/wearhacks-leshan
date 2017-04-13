@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,14 +15,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -86,14 +86,13 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 		MOTION_SENSOR, DROWNING_SENSOR
 	}
 
-	private enum Cameras {
+	public enum Cameras {
 		LIVE_CAM, GRAY_CAM, BLUR_CAM, DIFF_CAM, ACCUMULATED_IMAGE_CAM, EDGE_CAM, CONTOUR_CAM, SETTINGS, TRACK_CAM
 	}
 
 	private Status status = Status.DROWNING_SENSOR;
 	// Cameras
-	private CameraPanels panelCamera = new CameraPanels("Camera's",
-			Stream.of(Cameras.values()).map(Cameras::name).collect(Collectors.toList()), this, this);
+	private CameraPanels panelCamera = new CameraPanels("Camera's",Cameras.values(), this, this);
 	private JFrame frameCamera = createFrame("Camera", panelCamera);
 	private IOListener ioListener;
 	private int clipDuration = 10 * 1000;
@@ -163,7 +162,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
 					writeImage(Cameras.GRAY_CAM, grayImage);
 					// Step 2.Blur
-					Imgproc.GaussianBlur(grayImage, grayImage, new Size(KsizeA, KsizeB), SigmaX);
+					Imgproc.GaussianBlur(grayImage, grayImage, new Size(Math.round((KsizeA-1)/2)*2+1, Math.round((KsizeB-1)/2)*2+1), SigmaX);
 					writeImage(Cameras.BLUR_CAM, grayImage);
 
 					// Converting Formats
@@ -183,7 +182,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					grayImage.convertTo(inputFloating, CvType.CV_32F);
 
 					// Step 4. Add the current image to Avg Image
-					Imgproc.accumulateWeighted(inputFloating, avgImage, Alpha / 100);
+					Imgproc.accumulateWeighted(inputFloating, avgImage, Alpha / 100d);
 					writeImage(Cameras.ACCUMULATED_IMAGE_CAM, avgImage);
 
 					// Process Phase
@@ -309,13 +308,23 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 	}
 
 	private JFrame createFrame(String frameName, JPanel panel) {
-		JFrame frame = new JFrame(frameName);
+		final JFrame  frame = new JFrame(frameName);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(640, 480);
 		frame.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 		frame.setContentPane(panel);
-		frame.setVisible(true);
-		return frame;
+		
+		
+		 SwingUtilities.invokeLater(new Runnable() {
+
+	            @Override
+	            public void run() {
+	            	frame.setVisible(true);
+	            }
+	        });
+		 return frame;
+		 
+		
 	}
 
 	private void setFramesSizes(Mat image) {
@@ -526,27 +535,27 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JComboBox combo = (JComboBox) e.getSource();
-		String currentPanel = (String) combo.getSelectedItem();
-		Map<String, Integer> sliderlist = new HashMap<String, Integer>();
+		String currentPanel = ((Cameras) combo.getSelectedItem()).toString();
+		Map<String, Map.Entry<Integer, Integer>> sliderlist = new HashMap<String, Map.Entry<Integer, Integer>>();
 		currentCamera = currentPanel;
 		switch (currentPanel) {
 		case "BLUR_CAM":
-			sliderlist.put("KsizeA", 100);
-			sliderlist.put("KsizeB", 100);
-			sliderlist.put("SigmaX", 100);
+			sliderlist.put("KsizeA", new AbstractMap.SimpleEntry<Integer,Integer>(100,KsizeA));
+			sliderlist.put("KsizeB", new AbstractMap.SimpleEntry<Integer,Integer>(100,KsizeB));
+			sliderlist.put("SigmaX", new AbstractMap.SimpleEntry<Integer,Integer>(100,SigmaX));
 			break;
 		case "ACCUMULATED_IMAGE_CAM":
-			sliderlist.put("Alpha", 1);
+			sliderlist.put("Alpha", new AbstractMap.SimpleEntry<Integer,Integer>(1,Alpha));
 			break;
 		case "EDGE_CAM":
-			sliderlist.put("Threshold1", 200);
-			sliderlist.put("Threshold2", 400);
+			sliderlist.put("Threshold1", new AbstractMap.SimpleEntry<Integer,Integer>(200,Threshold1));
+			sliderlist.put("Threshold2", new AbstractMap.SimpleEntry<Integer,Integer>(400,Threshold2));
 			break;
 		case "SETTINGS":
-			sliderlist.put("MaxObjectsToTrack", 50);
-			sliderlist.put("MinObjectArea", 15);
-			sliderlist.put("MinX", 15);
-			sliderlist.put("MinY", 15);
+			sliderlist.put("MaxObjectsToTrack", new AbstractMap.SimpleEntry<Integer,Integer>(50,MaxObjectsToTrack));
+			sliderlist.put("MinObjectArea", new AbstractMap.SimpleEntry<Integer,Integer>(15,MinObjectArea));
+			sliderlist.put("MinX", new AbstractMap.SimpleEntry<Integer,Integer>(15,MinX));
+			sliderlist.put("MinY", new AbstractMap.SimpleEntry<Integer,Integer>(15,MinY));
 			break;
 		default:
 			break;
