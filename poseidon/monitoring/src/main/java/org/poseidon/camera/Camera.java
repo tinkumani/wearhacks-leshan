@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -175,6 +176,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 
 					// Step 3. Diff from Avg Image
 					Core.absdiff(grayImageFloating, avgImage, absDiffImage);
+					//absDiffImage=grayImageFloating;
 					writeImage(Cameras.DIFF_CAM, absDiffImage);
 
 					// Converting Formats
@@ -194,12 +196,12 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					Mat absInteger = new Mat();
 					absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
 					// Step 5 Find Edge
-					Imgproc.Canny(absInteger, canny, Threshold1, Threshold2);
+					Imgproc.Canny(absInteger, canny, Threshold1, Threshold2,3,false);
 					writeImage(Cameras.EDGE_CAM, canny);
 					// Step 6 Find Contour
 					Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL,
 							Imgproc.CHAIN_APPROX_SIMPLE);
-					writeImage(Cameras.CONTOUR_CAM, canny);
+					writeImage(Cameras.CONTOUR_CAM, canny,hierarchy,contours);
 					if (contours.size() > 0) {
 						int numObjects = contours.size();
 
@@ -259,6 +261,48 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 		}
 	}
 
+	private void writeImage(Cameras cam, Mat image,Mat hierarchy, List<MatOfPoint> contours) {
+		if (image != null && cam != null) {
+
+			if (currentCamera == null || !currentCamera.equals(cam.name())) {
+				return;
+			}
+		if(cam.equals(Cameras.CONTOUR_CAM))
+		{
+			Mat drawing = Mat.zeros( image.size(), CvType.CV_8UC3 );
+			System.out.println("Contours-->"+contours.size());
+			  for( int i = 0; i< contours.size(); i++ )
+			     {
+			      Random random=new Random(); 
+				  Scalar color = new Scalar(random.nextInt()%255, random.nextInt()%255, random.nextInt()%255 );
+			       Imgproc.drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, new Point() );
+			     }
+			  try {
+				panelCamera.setImage(toBuffImage(drawing));
+			} catch (IOException e) {
+			}
+		}
+		}
+		
+	}
+	private void writeImage(Cameras cam, Mat image) {
+
+		if (image != null && cam != null) {
+
+			if (currentCamera == null || !currentCamera.equals(cam.name())) {
+				return;
+			}
+			
+			try {
+				panelCamera.setImage(toBuffImage(image));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
 	private synchronized VideoWriter getCurrentVideoWriter(Size frameSize, double fps) throws IOException {
 		String prefix = "recording";
 		String suffix = ".avi";
@@ -281,22 +325,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 
 	}
 
-	private void writeImage(Cameras cam, Mat image) {
-
-		if (image != null && cam != null) {
-
-			if (currentCamera == null || !currentCamera.equals(cam.name())) {
-				return;
-			}
-			try {
-				panelCamera.setImage(toBuffImage(image));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
+	
 
 	private BufferedImage toBuffImage(Mat image) throws IOException {
 		if (image.empty())
