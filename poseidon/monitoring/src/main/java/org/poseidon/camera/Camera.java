@@ -165,10 +165,14 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					// Step 2.Blur
 					Imgproc.GaussianBlur(grayImage, grayImage, new Size(Math.round((KsizeA-1)/2)*2+1, Math.round((KsizeB-1)/2)*2+1), SigmaX);
 					writeImage(Cameras.BLUR_CAM, grayImage);
+					
+					//
+					Mat thresholdImage= new Mat();
+					Imgproc.threshold(grayImage, thresholdImage, 127, 255, 0);
 
 					// Converting Formats
 					Mat grayImageFloating = new Mat();
-					grayImage.convertTo(grayImageFloating, CvType.CV_32F);
+					thresholdImage.convertTo(grayImageFloating, CvType.CV_32F);
 					if (absDiffImage.empty())
 						absDiffImage = Mat.zeros(image.size(), CvType.CV_32F);
 					if (avgImage.empty())
@@ -208,7 +212,6 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 						// large number of objects, we have a noisy filter
 						if (numObjects < MaxObjectsToTrack) {
 							for (int i = 0; i < contours.size(); i++) {
-								System.out.println(contours.size());
 								writeImage(Cameras.TRACK_CAM, processDisplay(contours.get(i), image));
 								Moments moment = Imgproc.moments(contours.get(i));
 								// Step 7. Calculate Area of each Contour
