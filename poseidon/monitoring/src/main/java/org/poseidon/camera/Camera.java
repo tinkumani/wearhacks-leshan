@@ -88,7 +88,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 	}
 
 	public enum Cameras {
-		LIVE_CAM, GRAY_CAM, BLUR_CAM, DIFF_CAM, ACCUMULATED_IMAGE_CAM, EDGE_CAM, CONTOUR_CAM, SETTINGS, TRACK_CAM
+		LIVE_CAM, GRAY_CAM, BLUR_CAM, THRESHOLD_CAM,DIFF_CAM, ACCUMULATED_IMAGE_CAM, EDGE_CAM, CONTOUR_CAM, SETTINGS, TRACK_CAM
 	}
 
 	private Status status = Status.DROWNING_SENSOR;
@@ -109,8 +109,12 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 	private int MinObjectArea = 15;
 	private int MinX = 10;
 	private int MinY = 10;
+	private int Type=0;
+	private double MaxValue=255;
+	private double Threshold=127;
 
 	private String currentCamera = "LIVE_CAM";
+	
 
 	public void startTracking() throws Exception {
 
@@ -166,20 +170,20 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					Imgproc.GaussianBlur(grayImage, grayImage, new Size(Math.round((KsizeA-1)/2)*2+1, Math.round((KsizeB-1)/2)*2+1), SigmaX);
 					writeImage(Cameras.BLUR_CAM, grayImage);
 					
-					//
+					// Step 3. Threshold the Image
 					Mat thresholdImage= new Mat();
-					Imgproc.threshold(grayImage, thresholdImage, 127, 255, 0);
-
+					Imgproc.threshold(grayImage, thresholdImage, Threshold, MaxValue, Type);
+					writeImage(Cameras.THRESHOLD_CAM, thresholdImage);
 					// Converting Formats
-					Mat grayImageFloating = new Mat();
-					thresholdImage.convertTo(grayImageFloating, CvType.CV_32F);
+					Mat thresholdImageFloating = new Mat();
+					thresholdImage.convertTo(thresholdImageFloating, CvType.CV_32F);
 					if (absDiffImage.empty())
 						absDiffImage = Mat.zeros(image.size(), CvType.CV_32F);
 					if (avgImage.empty())
 						avgImage = Mat.zeros(grayImage.size(), CvType.CV_32F);
 
-					// Step 3. Diff from Avg Image
-					Core.absdiff(grayImageFloating, avgImage, absDiffImage);
+					// Step 4. Diff from Avg Image
+					Core.absdiff(thresholdImageFloating, avgImage, absDiffImage);
 					//absDiffImage=grayImageFloating;
 					writeImage(Cameras.DIFF_CAM, absDiffImage);
 
@@ -187,7 +191,7 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					Mat inputFloating = new Mat();
 					grayImage.convertTo(inputFloating, CvType.CV_32F);
 
-					// Step 4. Add the current image to Avg Image
+					// Step 5. Add the current image to Avg Image
 					Imgproc.accumulateWeighted(inputFloating, avgImage, Alpha / 100d);
 					writeImage(Cameras.ACCUMULATED_IMAGE_CAM, avgImage);
 
@@ -199,10 +203,10 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 					Mat canny = new Mat();
 					Mat absInteger = new Mat();
 					absDiffImage.convertTo(absInteger, CvType.CV_8UC1);
-					// Step 5 Find Edge
+					// Step 6 Find Edge
 					Imgproc.Canny(absInteger, canny, Threshold1, Threshold2,3,false);
 					writeImage(Cameras.EDGE_CAM, canny);
-					// Step 6 Find Contour
+					// Step 7 Find Contour
 					Imgproc.findContours(canny, contours, hierarchy, Imgproc.RETR_EXTERNAL,
 							Imgproc.CHAIN_APPROX_SIMPLE);
 					writeImage(Cameras.CONTOUR_CAM, canny,hierarchy,contours);
@@ -576,6 +580,10 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 			sliderlist.put("KsizeB", new AbstractMap.SimpleEntry<Integer,Integer>(100,KsizeB));
 			sliderlist.put("SigmaX", new AbstractMap.SimpleEntry<Integer,Integer>(100,SigmaX));
 			break;
+		case "THRESHOLD_CAM":
+			sliderlist.put("Type", new AbstractMap.SimpleEntry<Integer,Integer>(1,Type));
+			sliderlist.put("MaxValue", new AbstractMap.SimpleEntry<Integer,Integer>(255,(int)MaxValue));
+			sliderlist.put("Thresold", new AbstractMap.SimpleEntry<Integer,Integer>(255,(int)Threshold));
 		case "ACCUMULATED_IMAGE_CAM":
 			sliderlist.put("Alpha", new AbstractMap.SimpleEntry<Integer,Integer>(1,Alpha));
 			break;
@@ -630,6 +638,15 @@ public class Camera implements IOControl, ActionListener, ChangeListener {
 			break;
 		case "MinY":
 			MinY = val;
+			break;
+		case "Type":
+			Type = val;
+			break;
+		case "MaxValue":
+			MaxValue = val;
+			break;
+		case "Threshold":
+			Threshold = val;
 			break;
 
 		default:
